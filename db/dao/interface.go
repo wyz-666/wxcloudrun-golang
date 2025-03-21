@@ -16,3 +16,13 @@ type CounterInterfaceImp struct{}
 
 // Imp 实现实例
 var Imp CounterInterface = &CounterInterfaceImp{}
+
+type UserInfoInterface interface {
+	GetUser() (*model.UserInfoModel, error)
+}
+
+// CounterInterfaceImp 计数器数据模型实现
+type UserInfoInterfaceImp struct{}
+
+// Imp 实现实例
+var UserInfoImp UserInfoInterface = &UserInfoInterfaceImp{}

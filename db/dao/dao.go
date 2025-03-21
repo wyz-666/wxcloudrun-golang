@@ -29,3 +29,14 @@ func (imp *CounterInterfaceImp) GetCounter(id int32) (*model.CounterModel, error
 
 	return counter, err
 }
+
+// GetUser implements UserInfoInterface.
+func (userInfoImp *UserInfoInterfaceImp) GetUser() (*model.UserInfoModel, error) {
+	var err error
+	var user = new(model.UserInfoModel)
+
+	cli := db.Get()
+	err = cli.Table("UserInfo").First(user).Error
+
+	return user, err
+}
