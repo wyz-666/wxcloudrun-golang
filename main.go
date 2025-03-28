@@ -5,6 +5,7 @@ import (
 	"log"
 
 	// "net/http"
+	"wxcloudrun-golang/app/handlers"
 	"wxcloudrun-golang/db"
 	"wxcloudrun-golang/service"
 
@@ -17,13 +18,14 @@ func main() {
 	}
 
 	r := gin.Default()
-
+	user := r.Group("/user")
+	{
+		user.POST("register", handlers.Register)
+		user.POST("login", handlers.Login)
+	}
 	r.GET("/", service.IndexHandler)
 	r.GET("/api/count", service.GetCounterHandler)
 	r.POST("/api/count", service.PostCounterHandler)
 	r.GET("/api/user", service.GetUserInfo)
-	// http.HandleFunc("/", service.IndexHandler)
-	// http.HandleFunc("/api/count", service.CounterHandler)
 	log.Fatal(r.Run(":80"))
-	// log.Fatal(http.ListenAndServe(":80", nil))
 }

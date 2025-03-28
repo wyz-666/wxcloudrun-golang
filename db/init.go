@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"wxcloudrun-golang/db/model"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -41,6 +42,12 @@ func Init() error {
 		return err
 	}
 
+	err = db.AutoMigrate(&model.User{})
+	if err != nil {
+		fmt.Println("DB Migrate error,err=", err.Error())
+		return err
+	}
+
 	// 用于设置连接池中空闲连接的最大数量
 	sqlDB.SetMaxIdleConns(100)
 	// 设置打开数据库连接的最大数量
@@ -52,6 +59,12 @@ func Init() error {
 
 	fmt.Println("finish init mysql with ", source)
 	return nil
+}
+func Migrate() {
+	err := dbInstance.AutoMigrate(&model.User{})
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // Get ...
