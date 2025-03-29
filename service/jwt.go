@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -36,4 +38,27 @@ func CreateJwtToken(userID string, userType int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
 
 	return token.SignedString(jwtSecret)
+}
+
+// ParseToken parse jwt token
+func ParseToken(tokenString string) (*CPIFUserClaims, error) {
+	// jwt secret
+	var jwtSecret = []byte(JWTSECRET)
+	// parse token
+	token, err := jwt.ParseWithClaims(tokenString, &CPIFUserClaims{}, func(token *jwt.Token) (i interface{}, err error) {
+		return jwtSecret, nil
+	})
+
+	if err != nil {
+		glog.Errorln("parse error")
+		return nil, err
+	}
+
+	fmt.Println("claims:")
+	fmt.Println(token.Claims.(*CPIFUserClaims))
+
+	if claims, ok := token.Claims.(*CPIFUserClaims); ok && token.Valid { // 校验token
+		return claims, nil
+	}
+	return nil, errors.New("invalid token")
 }

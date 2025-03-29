@@ -39,6 +39,25 @@ func AddUser(user *request.ReqUser) error {
 	if user.Type == 2 {
 		approved = false
 	}
+	cli := db.Get()
+	// 检查 UserID 是否唯一
+	var count int64
+	cli.Model(&model.User{}).Where("userId = ?", uuid).Count(&count)
+	if count > 0 {
+		return errors.New("用户ID已存在")
+	}
+
+	// 检查 Account 是否唯一
+	cli.Model(&model.User{}).Where("account = ?", user.Account).Count(&count)
+	if count > 0 {
+		return errors.New("账号已存在")
+	}
+
+	// 检查 CompanyName 是否唯一
+	// cli.Model(&model.User{}).Where("company_name = ?", user.Company).Count(&count)
+	// if count > 0 {
+	// 	return errors.New("公司已经注册")
+	// }
 	addUser := model.User{
 		UserID:       uuid,
 		UserName:     user.Name,
@@ -50,7 +69,7 @@ func AddUser(user *request.ReqUser) error {
 		PasswordHash: passwordHash,
 		Approved:     approved,
 	}
-	cli := db.Get()
+
 	err = cli.Create(&addUser).Error
 	if err != nil {
 		glog.Errorln("create new user error: %v", err)

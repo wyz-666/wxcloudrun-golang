@@ -6,6 +6,7 @@ import (
 
 	// "net/http"
 	"wxcloudrun-golang/app/handlers"
+	"wxcloudrun-golang/app/middlewares"
 	"wxcloudrun-golang/db"
 	"wxcloudrun-golang/service"
 
@@ -22,6 +23,10 @@ func main() {
 	{
 		user.POST("register", handlers.Register)
 		user.POST("login", handlers.Login)
+	}
+	common := r.Group("/common", middlewares.JwtAuth(), middlewares.CheckPermission())
+	{
+		common.GET("count", service.GetCounterHandler)
 	}
 	r.GET("/", service.IndexHandler)
 	r.GET("/api/count", service.GetCounterHandler)
