@@ -42,7 +42,7 @@ func Init() error {
 		return err
 	}
 
-	err = db.AutoMigrate(&model.User{})
+	err = db.AutoMigrate(&model.User{}, &model.SemiMonthQuotation{}, &model.MonthQuotation{}, &model.YearQuotation{}, &model.BuyerTx{}, &model.SellerTx{})
 	if err != nil {
 		fmt.Println("DB Migrate error,err=", err.Error())
 		return err

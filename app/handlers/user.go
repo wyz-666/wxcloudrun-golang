@@ -47,7 +47,6 @@ func checkRegisterParams(reqUser *request.ReqUser) bool {
 }
 
 func Login(c *gin.Context) {
-
 	glog.Info("################## User Login ##################")
 	var reqLogin request.ReqLogin
 	if err := c.ShouldBind(&reqLogin); err != nil || !checkLoginParams(&reqLogin) {
@@ -55,10 +54,16 @@ func Login(c *gin.Context) {
 		return
 	}
 	reqPwdHash := crypto.CalculateSHA256(reqLogin.Password, "FDUCPIF")
-	userID, pwdHash, userType, err := service.QueryUserInfo(reqLogin.Account)
+	userID, pwdHash, userType, approved, err := service.QueryUserInfo(reqLogin.Account)
 	if err != nil {
 		glog.Errorln("query fsims password hash error!")
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if userType == 2 && !approved {
+		glog.Errorln("该用户资格审批尚未通过!")
+		response.MakeFail(c, http.StatusBadRequest, "该用户资格审批尚未通过!")
 		return
 	}
 
@@ -84,6 +89,24 @@ func Login(c *gin.Context) {
 		Token:  token,
 	}
 	response.MakeSuccess(c, http.StatusOK, resLogin)
+}
+
+func ApproveUser(c *gin.Context) {
+	glog.Info("################## Approve VIP User ##################")
+	var reqApprove request.ReqApproveUser
+	if err := c.ShouldBind(&reqApprove); err != nil {
+		glog.Errorln("approve user error")
+		response.MakeFail(c, http.StatusNotAcceptable, "approve user failure!")
+		return
+	}
+	err := service.ApproveUser(reqApprove.UserID)
+	if err != nil {
+		glog.Errorln("approve vip user error!")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	response.MakeSuccess(c, http.StatusOK, "approve vip user successfully")
+
 }
 
 func checkLoginParams(reqLogin *request.ReqLogin) bool {

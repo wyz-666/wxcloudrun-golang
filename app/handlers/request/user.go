@@ -15,3 +15,7 @@ type ReqLogin struct {
 	Account  string `json:"account" form:"account"`
 	Password string `json:"password" form:"password"`
 }
+
+type ReqApproveUser struct {
+	UserID string `json:"userId" form:"userId"`
+}

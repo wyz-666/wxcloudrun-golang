@@ -17,14 +17,14 @@ const (
 	COMMON_USER_TYPE = 3
 )
 
-func QueryUserInfo(account string) (uuid, password string, userType int, err error) {
+func QueryUserInfo(account string) (uuid, password string, userType int, Approved bool, err error) {
 	var user model.User
 	cli := db.Get()
 	err = cli.Where("account = ?", account).First(&user).Error
 	if err != nil {
-		return "", "", 0, err
+		return "", "", 0, false, err
 	}
-	return user.UserID, user.PasswordHash, user.Type, nil
+	return user.UserID, user.PasswordHash, user.Type, user.Approved, nil
 
 }
 
@@ -73,6 +73,15 @@ func AddUser(user *request.ReqUser) error {
 	err = cli.Create(&addUser).Error
 	if err != nil {
 		glog.Errorln("create new user error: %v", err)
+		return err
+	}
+	return nil
+}
+
+func ApproveUser(userID string) error {
+	cli := db.Get()
+	err := cli.Model(&model.User{}).Where("userId = ?", userID).Update("approved", true).Error
+	if err != nil {
 		return err
 	}
 	return nil
