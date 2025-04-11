@@ -12,13 +12,14 @@ import (
 const JWTSECRET = "CPIFJWT666"
 
 type CPIFUserClaims struct {
+	Uuid     string
 	UserID   string
 	UserType int
 	jwt.StandardClaims
 }
 
 // CreateJwtToken Create JWT Token
-func CreateJwtToken(userID string, userType int) (string, error) {
+func CreateJwtToken(uuid, userID string, userType int) (string, error) {
 	// 2 hours
 	var TokenExpireDuration = time.Second * time.Duration(3600) * 2
 
@@ -27,6 +28,7 @@ func CreateJwtToken(userID string, userType int) (string, error) {
 	jwtSecret := []byte(JWTSECRET)
 
 	c := CPIFUserClaims{
+		uuid,
 		userID,
 		userType,
 		jwt.StandardClaims{

@@ -4,6 +4,7 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
+	Uuid         string `gorm:"column:uuid;type:varchar(64);uniqueIndex" json:"uuid"`
 	UserID       string `gorm:"column:userId" json:"userId"`
 	UserName     string `gorm:"column:userName" json:"userName"`
 	CompanyName  string `gorm:"column:companyName" json:"companyName"`

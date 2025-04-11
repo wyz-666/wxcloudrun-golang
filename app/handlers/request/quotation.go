@@ -3,6 +3,7 @@ package request
 import "time"
 
 type ReqQuotation struct {
+	FormName    string    `json:"formName" form:"formName"`
 	UserID      string    `json:"userId" form:"userId"`
 	Product     string    `json:"product" form:"product"`
 	Type        string    `json:"type" form:"type"`

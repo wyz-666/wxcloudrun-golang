@@ -17,5 +17,5 @@ type ReqLogin struct {
 }
 
 type ReqApproveUser struct {
-	UserID string `json:"userId" form:"userId"`
+	Uuid string `json:"uuid" form:"uuid"`
 }

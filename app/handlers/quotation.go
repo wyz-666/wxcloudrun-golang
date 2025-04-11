@@ -13,6 +13,37 @@ import (
 	"github.com/golang/glog"
 )
 
+func MultiSubmit(c *gin.Context) {
+	glog.Info("################## Multi Quotation Submit ##################")
+	var quotations []request.ReqQuotation
+	if err := c.ShouldBind(&quotations); err != nil {
+		glog.Errorln(err.Error())
+		response.MakeFail(c, http.StatusNotAcceptable, err.Error())
+		return
+	}
+	var err error
+	for _, quotation := range quotations {
+		switch quotation.FormName {
+		case "SemiMonth":
+			err = service.AddSemiMonth(&quotation)
+		case "Month":
+			err = service.AddMonth(&quotation)
+		case "Year":
+			err = service.AddYear(&quotation)
+		default:
+			response.MakeFail(c, http.StatusBadRequest, "form name is wrong!")
+			return
+		}
+		if err != nil {
+			response.MakeFail(c, http.StatusBadRequest, err.Error())
+			return
+		}
+	}
+	glog.Info("multi quotation submit successful")
+	response.MakeSuccess(c, http.StatusOK, "successfully submit multi quotation!")
+	return
+}
+
 func SemiMonthSubmit(c *gin.Context) {
 	glog.Info("################## SemiMonth Quotation Submit ##################")
 	var reqQuotation request.ReqQuotation

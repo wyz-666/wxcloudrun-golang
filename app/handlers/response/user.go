@@ -1,6 +1,7 @@
 package response
 
 type ResLogin struct {
-	UserID string `json:"uuid"`
+	Uuid   string `json:uuid`
+	UserID string `json:"userId"`
 	Token  string `json:"token"`
 }

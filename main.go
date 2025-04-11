@@ -26,9 +26,10 @@ func main() {
 		//登录
 		user.POST("login", handlers.Login)
 		//报价提交
-		user.POST("semimonth", handlers.SemiMonthSubmit)
-		user.POST("month", handlers.MonthSubmit)
-		user.POST("year", handlers.YearSubmit)
+		// user.POST("semimonth", handlers.SemiMonthSubmit)
+		// user.POST("month", handlers.MonthSubmit)
+		// user.POST("year", handlers.YearSubmit)
+		user.POST("submit", handlers.MultiSubmit)
 		//报价公告
 		user.GET("semimonthpublish", handlers.SemiMonthPublish)
 		user.GET("monthpublish", handlers.MonthPublish)
@@ -42,6 +43,8 @@ func main() {
 		user.POST("buyertxsubmit", handlers.BuyerTxSubmit)
 		user.GET("sellertx", handlers.SellerTxPublish)
 		user.GET("buyertx", handlers.BuyerTxPublish)
+		//申请升级为VIP
+		user.POST("applyVip", handlers.ApplyToVip)
 	}
 	// all := r.Group("/all",middlewares.JwtAuth())
 	// {
@@ -55,8 +58,9 @@ func main() {
 	}
 	admin := r.Group("/admin", middlewares.JwtAuth(), middlewares.CheckPermission())
 	{
-		admin.POST("/approveuser", handlers.ApproveUser)
+		// admin.POST("/approveuser", handlers.ApproveUser)
 		admin.POST("approvequotation", handlers.ApproveQuotation)
+		admin.POST("/upgradeVip", handlers.UpToVipByAdmin)
 	}
 	r.GET("/", service.IndexHandler)
 	r.GET("/api/count", service.GetCounterHandler)

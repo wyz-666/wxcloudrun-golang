@@ -54,7 +54,7 @@ func Login(c *gin.Context) {
 		return
 	}
 	reqPwdHash := crypto.CalculateSHA256(reqLogin.Password, "FDUCPIF")
-	userID, pwdHash, userType, approved, err := service.QueryUserInfo(reqLogin.Account)
+	uuid, userID, pwdHash, userType, approved, err := service.QueryUserInfo(reqLogin.Account)
 	if err != nil {
 		glog.Errorln("query fsims password hash error!")
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
@@ -75,7 +75,7 @@ func Login(c *gin.Context) {
 	}
 
 	// create jwt token with uuid
-	token, err := service.CreateJwtToken(userID, userType)
+	token, err := service.CreateJwtToken(uuid, userID, userType)
 	if err != nil {
 		glog.Errorln("create jwt token error!")
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
@@ -85,6 +85,7 @@ func Login(c *gin.Context) {
 	glog.Infoln("token:", token)
 
 	resLogin := response.ResLogin{
+		Uuid:   uuid,
 		UserID: userID,
 		Token:  token,
 	}
@@ -99,7 +100,7 @@ func ApproveUser(c *gin.Context) {
 		response.MakeFail(c, http.StatusNotAcceptable, "approve user failure!")
 		return
 	}
-	err := service.ApproveUser(reqApprove.UserID)
+	err := service.ApproveUser(reqApprove.Uuid)
 	if err != nil {
 		glog.Errorln("approve vip user error!")
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
@@ -107,6 +108,40 @@ func ApproveUser(c *gin.Context) {
 	}
 	response.MakeSuccess(c, http.StatusOK, "approve vip user successfully")
 
+}
+
+func UpToVipByAdmin(c *gin.Context) {
+	glog.Info("################## Upgrade VIP User By Admin ##################")
+	var reqApprove request.ReqApproveUser
+	if err := c.ShouldBind(&reqApprove); err != nil {
+		glog.Errorln("upgrade user error")
+		response.MakeFail(c, http.StatusNotAcceptable, "upgrade user failure!")
+		return
+	}
+	err := service.UpToVipByAdmin(reqApprove.Uuid)
+	if err != nil {
+		glog.Errorln("upgrade vip user error!")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	response.MakeSuccess(c, http.StatusOK, "upgrade vip user successfully")
+}
+
+func ApplyToVip(c *gin.Context) {
+	glog.Info("################## Apply VIP User ##################")
+	var reqApprove request.ReqApproveUser
+	if err := c.ShouldBind(&reqApprove); err != nil {
+		glog.Errorln("apply user error")
+		response.MakeFail(c, http.StatusNotAcceptable, "apply user failure!")
+		return
+	}
+	err := service.ApplyToVip(reqApprove.Uuid)
+	if err != nil {
+		glog.Errorln("apply vip user error!")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	response.MakeSuccess(c, http.StatusOK, "apply vip user successfully")
 }
 
 func checkLoginParams(reqLogin *request.ReqLogin) bool {
