@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"wxcloudrun-golang/app/handlers/request"
 	"wxcloudrun-golang/app/handlers/response"
+	"wxcloudrun-golang/db"
+	"wxcloudrun-golang/db/model"
 	"wxcloudrun-golang/service"
 	"wxcloudrun-golang/utils/crypto"
 
@@ -89,7 +91,7 @@ func Login(c *gin.Context) {
 		UserID: userID,
 		Token:  token,
 	}
-	response.MakeSuccess(c, http.StatusOK, resLogin)
+	response.MakeSuccessAdmin(c, http.StatusOK, "登录成功", resLogin)
 }
 
 func ApproveUser(c *gin.Context) {
@@ -110,21 +112,60 @@ func ApproveUser(c *gin.Context) {
 
 }
 
-func UpToVipByAdmin(c *gin.Context) {
-	glog.Info("################## Upgrade VIP User By Admin ##################")
-	var reqApprove request.ReqApproveUser
-	if err := c.ShouldBind(&reqApprove); err != nil {
-		glog.Errorln("upgrade user error")
-		response.MakeFail(c, http.StatusNotAcceptable, "upgrade user failure!")
+func GetAllUser(c *gin.Context) {
+	glog.Info("################## Get All User ##################")
+	var users []model.User
+
+	cli := db.Get()
+	err := cli.Find(&users).Error
+	if err != nil {
+		glog.Errorln("query all users error!")
+		response.MakeFail(c, http.StatusBadRequest, "query all user error")
 		return
 	}
-	err := service.UpToVipByAdmin(reqApprove.Uuid)
+	glog.Info("query all users successful")
+	response.MakeSuccess(c, http.StatusOK, users)
+	return
+}
+
+func GetAllApprovingUser(c *gin.Context) {
+	glog.Info("################## Get All Approving User ##################")
+	var users []model.User
+
+	cli := db.Get()
+	err := cli.Where("approved = ?", false).Find(&users).Error
+	if err != nil {
+		glog.Errorln("query all approving users error!")
+		response.MakeFail(c, http.StatusBadRequest, "query all approving user error")
+		return
+	}
+	glog.Info("query all approving users successful")
+	response.MakeSuccess(c, http.StatusOK, users)
+	return
+}
+
+func UpToVipByAdmin(c *gin.Context) {
+	glog.Info("################## Upgrade VIP User By Admin ##################")
+	uuid := c.Query("uuid")
+	err := service.UpToVipByAdmin(uuid)
 	if err != nil {
 		glog.Errorln("upgrade vip user error!")
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
 	response.MakeSuccess(c, http.StatusOK, "upgrade vip user successfully")
+}
+
+func DownToCommonByAdmin(c *gin.Context) {
+	glog.Info("################## Down User By Admin ##################")
+	uuid := c.Query("uuid")
+	err := service.DownToCommonByAdmin(uuid)
+	if err != nil {
+		glog.Errorln("dowm vip user error!")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	response.MakeSuccess(c, http.StatusOK, "down vip user successfully")
 }
 
 func ApplyToVip(c *gin.Context) {

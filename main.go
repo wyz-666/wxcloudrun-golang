@@ -19,6 +19,7 @@ func main() {
 	}
 
 	r := gin.Default()
+	r.Use(middlewares.Cors())
 	user := r.Group("/user")
 	{
 		//注册
@@ -59,8 +60,14 @@ func main() {
 	admin := r.Group("/admin", middlewares.JwtAuth(), middlewares.CheckPermission())
 	{
 		// admin.POST("/approveuser", handlers.ApproveUser)
-		admin.POST("approvequotation", handlers.ApproveQuotation)
-		admin.POST("/upgradeVip", handlers.UpToVipByAdmin)
+		admin.GET("approvequotation", handlers.ApproveQuotation)
+		admin.GET("/upgradeVip", handlers.UpToVipByAdmin)
+		admin.GET("/downVip", handlers.DownToCommonByAdmin)
+		admin.GET("/userlist", handlers.GetAllUser)
+		admin.GET("/approvinguser", handlers.GetAllApprovingUser)
+		admin.GET("approvingsemimonth", handlers.GetApprovingSemiMonthQuotations)
+		admin.GET("approvingmonth", handlers.GetApprovingMonthQuotations)
+		admin.GET("approvingyear", handlers.GetApprovingYearQuotations)
 	}
 	r.GET("/", service.IndexHandler)
 	r.GET("/api/count", service.GetCounterHandler)

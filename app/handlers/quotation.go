@@ -4,6 +4,7 @@ import (
 	"time"
 	"wxcloudrun-golang/app/handlers/request"
 	"wxcloudrun-golang/app/handlers/response"
+	"wxcloudrun-golang/db"
 	"wxcloudrun-golang/db/model"
 	"wxcloudrun-golang/service"
 
@@ -173,5 +174,53 @@ func YearPublish(c *gin.Context) {
 	}
 	glog.Info("publish year quotation successful")
 	response.MakeSuccess(c, http.StatusOK, res)
+	return
+}
+
+func GetApprovingSemiMonthQuotations(c *gin.Context) {
+	glog.Info("################## Get Approving SemiMonth Quotations ##################")
+	var quotations []model.SemiMonthQuotation
+
+	cli := db.Get()
+	err := cli.Where("approved = ?", false).Find(&quotations).Error
+	if err != nil {
+		glog.Errorln("get all approving semimonth quotations error!")
+		response.MakeFail(c, http.StatusBadRequest, "get all approving semimonth quotations error")
+		return
+	}
+	glog.Info("get all approving semimonth quotations successful")
+	response.MakeSuccess(c, http.StatusOK, quotations)
+	return
+}
+
+func GetApprovingMonthQuotations(c *gin.Context) {
+	glog.Info("################## Get Approving Month Quotations ##################")
+	var quotations []model.MonthQuotation
+
+	cli := db.Get()
+	err := cli.Where("approved = ?", false).Find(&quotations).Error
+	if err != nil {
+		glog.Errorln("get all approving month quotations error!")
+		response.MakeFail(c, http.StatusBadRequest, "get all approving month quotations error")
+		return
+	}
+	glog.Info("get all approving month quotations successful")
+	response.MakeSuccess(c, http.StatusOK, quotations)
+	return
+}
+
+func GetApprovingYearQuotations(c *gin.Context) {
+	glog.Info("################## Get Approving Month Quotations ##################")
+	var quotations []model.YearQuotation
+
+	cli := db.Get()
+	err := cli.Where("approved = ?", false).Find(&quotations).Error
+	if err != nil {
+		glog.Errorln("get all approving year quotations error!")
+		response.MakeFail(c, http.StatusBadRequest, "get all approving year quotations error")
+		return
+	}
+	glog.Info("get all approving year quotations successful")
+	response.MakeSuccess(c, http.StatusOK, quotations)
 	return
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -8,7 +9,7 @@ import (
 	"wxcloudrun-golang/db/model"
 )
 
-func MonthlyAvg1(grouped map[string][]model.MonthQuotation) ([]response.MonthlyPriceStats, error) {
+func MonthlyAvg1(grouped map[string][]model.MonthQuotation, highIndex, lowIndex, midIndex float64) ([]response.MonthlyPriceStats, error) {
 	var result []response.MonthlyPriceStats
 	for month, items := range grouped {
 		var sumLow, sumHigh, sumPrice float64
@@ -28,11 +29,17 @@ func MonthlyAvg1(grouped map[string][]model.MonthQuotation) ([]response.MonthlyP
 		}
 
 		if count > 0 {
+			rate1 := ((sumLow / float64(count)) / lowIndex) * 100
+			rate2 := ((sumHigh / float64(count)) / highIndex) * 100
+			rate3 := ((sumPrice / float64(count)) / midIndex) * 100
 			result = append(result, response.MonthlyPriceStats{
-				Month:    month,
-				AvgLow:   sumLow / float64(count),
-				AvgHigh:  sumHigh / float64(count),
-				AvgPrice: sumPrice / float64(count),
+				Month:     month,
+				AvgLow:    sumLow / float64(count),
+				AvgHigh:   sumHigh / float64(count),
+				AvgPrice:  sumPrice / float64(count),
+				LowIndex:  math.Round(rate1*100) / 100,
+				HighIndex: math.Round(rate2*100) / 100,
+				MidIndex:  math.Round(rate3*100) / 100,
 			})
 		}
 	}

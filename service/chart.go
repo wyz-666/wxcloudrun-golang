@@ -20,7 +20,7 @@ func GetMonthlyCEAStats() ([]response.MonthlyPriceStats, error) {
 	for _, item := range data {
 		grouped[item.ApplicableTime] = append(grouped[item.ApplicableTime], item)
 	}
-	result, err := MonthlyAvg1(grouped)
+	result, err := MonthlyAvg1(grouped, 44.32, 40.00, 40.68)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func GetMonthlyCCERStats() ([]response.MonthlyPriceStats, error) {
 	for _, item := range data {
 		grouped[item.ApplicableTime] = append(grouped[item.ApplicableTime], item)
 	}
-	result, err := MonthlyAvg1(grouped)
+	result, err := MonthlyAvg1(grouped, 41.57, 39.78, 40.68)
 	if err != nil {
 		return nil, err
 	}

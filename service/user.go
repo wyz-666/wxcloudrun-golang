@@ -69,6 +69,7 @@ func AddUser(user *request.ReqUser) error {
 		UserID:       userId,
 		UserName:     user.Name,
 		CompanyName:  user.Company,
+		CompanyType:  user.CompanyType,
 		Type:         user.Type,
 		Phone:        user.Phone,
 		Email:        user.Email,
@@ -108,6 +109,23 @@ func UpToVipByAdmin(uuid string) error {
 	// 设置已通过
 	user.Approved = true
 	user.Type = 2
+	return cli.Save(&user).Error
+}
+
+func DownToCommonByAdmin(uuid string) error {
+	cli := db.Get()
+	// 查询该用户
+	var user model.User
+	if err := cli.Where("uuid = ?", uuid).First(&user).Error; err != nil {
+		return err
+	}
+	// 替换 UserID 前缀
+	if strings.HasPrefix(user.UserID, "CPIFA") {
+		user.UserID = strings.Replace(user.UserID, "CPIFA", "CPIFB", 1)
+	}
+	// 设置已通过
+	user.Approved = true
+	user.Type = 3
 	return cli.Save(&user).Error
 }
 
