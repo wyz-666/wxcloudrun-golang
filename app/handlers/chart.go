@@ -25,7 +25,7 @@ func GetMonthlyCCERStats(c *gin.Context) {
 }
 
 func GetMonthlyCEAStats(c *gin.Context) {
-	log.Println("################## GetMonthlyCCERStats ##################")
+	log.Println("################## GetMonthlyCEAStats ##################")
 	result, err := service.GetMonthlyCEAStats()
 
 	if err != nil {

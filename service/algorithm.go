@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"math"
 	"regexp"
 	"sort"
@@ -8,6 +9,8 @@ import (
 	"strings"
 	"wxcloudrun-golang/app/handlers/response"
 	"wxcloudrun-golang/db/model"
+
+	"gonum.org/v1/gonum/stat"
 )
 
 func MonthlyAvg1(grouped map[string][]model.MonthQuotation, highIndex, lowIndex, midIndex float64) ([]response.MonthlyPriceStats, error) {
@@ -30,17 +33,20 @@ func MonthlyAvg1(grouped map[string][]model.MonthQuotation, highIndex, lowIndex,
 		}
 
 		if count > 0 {
-			rate1 := ((sumLow / float64(count)) / lowIndex) * 100
-			rate2 := ((sumHigh / float64(count)) / highIndex) * 100
-			rate3 := ((sumPrice / float64(count)) / midIndex) * 100
+			rate1 := sumLow / float64(count)
+			rate2 := sumHigh / float64(count)
+			rate3 := sumPrice / float64(count)
+			rate4 := ((sumLow / float64(count)) / lowIndex) * 100
+			rate5 := ((sumHigh / float64(count)) / highIndex) * 100
+			rate6 := ((sumPrice / float64(count)) / midIndex) * 100
 			result = append(result, response.MonthlyPriceStats{
 				Month:     month,
-				AvgLow:    sumLow / float64(count),
-				AvgHigh:   sumHigh / float64(count),
-				AvgPrice:  sumPrice / float64(count),
-				LowIndex:  math.Round(rate1*100) / 100,
-				HighIndex: math.Round(rate2*100) / 100,
-				MidIndex:  math.Round(rate3*100) / 100,
+				AvgLow:    math.Round(rate1*100) / 100,
+				AvgHigh:   math.Round(rate2*100) / 100,
+				AvgPrice:  math.Round(rate3*100) / 100,
+				LowIndex:  math.Round(rate4*100) / 100,
+				HighIndex: math.Round(rate5*100) / 100,
+				MidIndex:  math.Round(rate6*100) / 100,
 			})
 		}
 	}
@@ -94,50 +100,53 @@ func MonthlyAvg2(grouped map[string][]model.MonthQuotation) ([]response.GECMonth
 }
 
 func AddFitPriceToStats(data []response.MonthlyPriceStats) []response.MonthlyPriceStats {
-	if len(data) == 0 {
-		return nil
+	n := len(data)
+	if len(data) < 2 {
+		return data
+	}
+	// 按时间排序，保证 X 序列单调
+	sort.Slice(data, func(i, j int) bool {
+		return parseMonthNumber(data[i].Month) < parseMonthNumber(data[j].Month)
+	})
+	// 构建 X、Y 数组
+	base := parseMonthNumber(data[0].Month)
+	X := make([]float64, n)
+	Y := make([]float64, n)
+	for i, d := range data {
+		X[i] = float64(parseMonthNumber(d.Month) - base)
+		Y[i] = d.AvgPrice
+		// log.Println("i:", i)
+		// log.Println("X:", X[i])
+		// log.Println("Y:", Y[i])
 	}
 
-	baseMonth := parseMonthNumber(data[0].Month)
-
-	// Step 1: 拿出 X 和 Y 值
-	var X, Y []float64
-	for _, d := range data {
-		relativeMonth := parseMonthNumber(d.Month) - baseMonth + 1
-		X = append(X, float64(relativeMonth))
-		Y = append(Y, d.AvgPrice)
-	}
-
-	// Step 2: 拟合线性函数
-	n := float64(len(X))
-	var sumX, sumY, sumXY, sumXX float64
-	for i := range X {
-		sumX += X[i]
-		sumY += Y[i]
-		sumXY += X[i] * Y[i]
-		sumXX += X[i] * X[i]
-	}
-	a := (n*sumXY - sumX*sumY) / (n*sumXX - sumX*sumX)
-	b := (sumY - a*sumX) / n
-
-	// Step 3: 写入每项的拟合值
+	var intercept, slope float64
+	intercept, slope = stat.LinearRegression(X, Y, nil, false)
+	log.Println("a:", slope)
+	log.Println("b:", intercept)
+	// 填回 data.FitPrice，并做 NaN 检查 + 四舍五入两位
 	for i := range data {
-		x := X[i]
-		fit := a*x + b
-		data[i].FitPrice = math.Round(fit*100) / 100 // 保留两位小数
+		y := slope*X[i] + intercept
+		if math.IsNaN(y) {
+			y = 0
+		}
+		data[i].FitPrice = math.Round(y*100) / 100
 	}
 
 	return data
 }
 
-// 辅助函数：解析 "2025年3月" → 202503
+var monthRe = regexp.MustCompile(`^([0-9]{4})年([0-9]{1,2})月`)
+
+// parseMonthNumber 解析 "YYYY年M月" 返回自定义月份索引（年*12 + 月-1）
 func parseMonthNumber(monthStr string) int {
-	re := regexp.MustCompile(`(\\d{4})年(\\d{1,2})月`)
-	matches := re.FindStringSubmatch(monthStr)
-	if len(matches) == 3 {
-		year, _ := strconv.Atoi(matches[1])
-		month, _ := strconv.Atoi(matches[2])
-		return year*100 + month
+	s := strings.TrimSpace(monthStr)
+	m := monthRe.FindStringSubmatch(s)
+	if len(m) != 3 {
+		return 0
 	}
-	return 0
+	year, _ := strconv.Atoi(m[1])
+	mon, _ := strconv.Atoi(m[2])
+	// 按年*12 + (月-1) 计算连续月份索引
+	return year*12 + (mon - 1)
 }
