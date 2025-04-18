@@ -33,6 +33,17 @@ func AddSemiMonth(quotation *request.ReqQuotation) error {
 		Approved:       false,
 	}
 
+	// 先查是否重复提交
+	var count int64
+	cli.Model(&model.SemiMonthQuotation{}).
+		Where("userId = ? AND product = ? AND type = ? AND applicableTime = ?",
+			quotation.UserID, quotation.Product, quotation.Type, resTime).
+		Count(&count)
+
+	if count > 0 {
+		return errors.New("不能重复报价：该用户本期已对该产品报价")
+	}
+
 	err = cli.Create(&semiMonthQuotation).Error
 	if err != nil {
 		glog.Errorln("Submit semimonth quotation error: %v", err)
@@ -62,6 +73,17 @@ func AddMonth(quotation *request.ReqQuotation) error {
 		Approved:       false,
 	}
 
+	// 先查是否重复提交
+	var count int64
+	cli.Model(&model.MonthQuotation{}).
+		Where("userId = ? AND product = ? AND type = ? AND applicableTime = ?",
+			quotation.UserID, quotation.Product, quotation.Type, resTime).
+		Count(&count)
+
+	if count > 0 {
+		return errors.New("不能重复报价：该用户本期已对该产品报价")
+	}
+
 	err = cli.Create(&monthQuotation).Error
 	if err != nil {
 		glog.Errorln("Submit month quotation error: %v", err)
@@ -74,6 +96,11 @@ func AddYear(quotation *request.ReqQuotation) error {
 	var resTime string
 	cli := db.Get()
 	resTime, qid, err := getYearTimeAndID(quotation.NowTime, cli)
+
+	start := quotation.NowTime.Truncate(24 * time.Hour)
+	monthStart := time.Date(start.Year(), start.Month(), 1, 0, 0, 0, 0, time.Local)
+	nextMonthStart := monthStart.AddDate(0, 1, 0)
+
 	if err != nil {
 		return err
 	}
@@ -88,6 +115,16 @@ func AddYear(quotation *request.ReqQuotation) error {
 		TxVolume:       quotation.TxVolume,
 		ApplicableTime: resTime,
 		Approved:       false,
+	}
+
+	var count int64
+	cli.Model(&model.YearQuotation{}).
+		Where("userId = ? AND product = ? AND created_at >= ? AND created_at < ?",
+			quotation.UserID, quotation.Product, monthStart, nextMonthStart).
+		Count(&count)
+
+	if count > 0 {
+		return errors.New("您本月已对该产品提交过报价")
 	}
 
 	err = cli.Create(&yearQuotation).Error

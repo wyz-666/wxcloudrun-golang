@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"wxcloudrun-golang/app/handlers/request"
 	"wxcloudrun-golang/app/handlers/response"
@@ -15,22 +16,22 @@ import (
 
 func Register(c *gin.Context) {
 
-	glog.Info("################## User Register ##################")
+	log.Println("################## User Register ##################")
 	var reqUser request.ReqUser
 	if err := c.ShouldBind(&reqUser); err != nil || !checkRegisterParams(&reqUser) {
-		glog.Errorln("User registration error")
+		log.Printf("[ERROR] User registration error: %v", err)
 		response.MakeFail(c, http.StatusNotAcceptable, "user registration failure!")
 		return
 	}
-	glog.Info("request user parameters:")
-	glog.Info(reqUser)
+	log.Println("request user parameters:")
+	log.Println(reqUser)
 	err := service.AddUser(&reqUser)
 	if err != nil {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	glog.Info("add new user successful!")
+	log.Println("add new user successful!")
 	response.MakeSuccess(c, http.StatusOK, "successfully register the user!")
 	return
 }
@@ -49,7 +50,7 @@ func checkRegisterParams(reqUser *request.ReqUser) bool {
 }
 
 func Login(c *gin.Context) {
-	glog.Info("################## User Login ##################")
+	log.Println("################## User Login ##################")
 	var reqLogin request.ReqLogin
 	if err := c.ShouldBind(&reqLogin); err != nil || !checkLoginParams(&reqLogin) {
 		response.MakeFail(c, http.StatusBadRequest, "login parameters error!")
@@ -83,19 +84,20 @@ func Login(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	glog.Infoln(reqLogin.Account, " login successful!")
-	glog.Infoln("token:", token)
+	log.Println(reqLogin.Account, " login successful!")
+	log.Println("token:", token)
 
 	resLogin := response.ResLogin{
-		Uuid:   uuid,
-		UserID: userID,
-		Token:  token,
+		Uuid:     uuid,
+		UserID:   userID,
+		UserType: userType,
+		Token:    token,
 	}
 	response.MakeSuccessAdmin(c, http.StatusOK, "登录成功", resLogin)
 }
 
 func ApproveUser(c *gin.Context) {
-	glog.Info("################## Approve VIP User ##################")
+	log.Println("################## Approve VIP User ##################")
 	var reqApprove request.ReqApproveUser
 	if err := c.ShouldBind(&reqApprove); err != nil {
 		glog.Errorln("approve user error")
@@ -113,7 +115,7 @@ func ApproveUser(c *gin.Context) {
 }
 
 func GetAllUser(c *gin.Context) {
-	glog.Info("################## Get All User ##################")
+	log.Println("################## Get All User ##################")
 	var users []model.User
 
 	cli := db.Get()
@@ -123,13 +125,13 @@ func GetAllUser(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, "query all user error")
 		return
 	}
-	glog.Info("query all users successful")
+	log.Println("query all users successful")
 	response.MakeSuccess(c, http.StatusOK, users)
 	return
 }
 
 func GetAllApprovingUser(c *gin.Context) {
-	glog.Info("################## Get All Approving User ##################")
+	log.Println("################## Get All Approving User ##################")
 	var users []model.User
 
 	cli := db.Get()
@@ -139,13 +141,13 @@ func GetAllApprovingUser(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, "query all approving user error")
 		return
 	}
-	glog.Info("query all approving users successful")
+	log.Println("query all approving users successful")
 	response.MakeSuccess(c, http.StatusOK, users)
 	return
 }
 
 func UpToVipByAdmin(c *gin.Context) {
-	glog.Info("################## Upgrade VIP User By Admin ##################")
+	log.Println("################## Upgrade VIP User By Admin ##################")
 	uuid := c.Query("uuid")
 	err := service.UpToVipByAdmin(uuid)
 	if err != nil {
@@ -157,7 +159,7 @@ func UpToVipByAdmin(c *gin.Context) {
 }
 
 func DownToCommonByAdmin(c *gin.Context) {
-	glog.Info("################## Down User By Admin ##################")
+	log.Println("################## Down User By Admin ##################")
 	uuid := c.Query("uuid")
 	err := service.DownToCommonByAdmin(uuid)
 	if err != nil {
@@ -169,7 +171,7 @@ func DownToCommonByAdmin(c *gin.Context) {
 }
 
 func ApplyToVip(c *gin.Context) {
-	glog.Info("################## Apply VIP User ##################")
+	log.Println("################## Apply VIP User ##################")
 	var reqApprove request.ReqApproveUser
 	if err := c.ShouldBind(&reqApprove); err != nil {
 		glog.Errorln("apply user error")
