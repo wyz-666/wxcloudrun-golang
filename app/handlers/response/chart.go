@@ -8,6 +8,7 @@ type MonthlyPriceStats struct {
 	LowIndex  float64 `json:"lowIndex"`
 	HighIndex float64 `json:"highIndex"`
 	MidIndex  float64 `json:"midIndex"`
+	FitPrice  float64 `json:"fitPrice"`
 }
 
 type GECMonthlyPriceStats struct {

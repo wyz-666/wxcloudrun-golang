@@ -2,6 +2,7 @@ package service
 
 import (
 	"math"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -90,4 +91,53 @@ func MonthlyAvg2(grouped map[string][]model.MonthQuotation) ([]response.GECMonth
 		return result[i].Type < result[j].Type
 	})
 	return result, nil
+}
+
+func AddFitPriceToStats(data []response.MonthlyPriceStats) []response.MonthlyPriceStats {
+	if len(data) == 0 {
+		return nil
+	}
+
+	baseMonth := parseMonthNumber(data[0].Month)
+
+	// Step 1: 拿出 X 和 Y 值
+	var X, Y []float64
+	for _, d := range data {
+		relativeMonth := parseMonthNumber(d.Month) - baseMonth + 1
+		X = append(X, float64(relativeMonth))
+		Y = append(Y, d.AvgPrice)
+	}
+
+	// Step 2: 拟合线性函数
+	n := float64(len(X))
+	var sumX, sumY, sumXY, sumXX float64
+	for i := range X {
+		sumX += X[i]
+		sumY += Y[i]
+		sumXY += X[i] * Y[i]
+		sumXX += X[i] * X[i]
+	}
+	a := (n*sumXY - sumX*sumY) / (n*sumXX - sumX*sumX)
+	b := (sumY - a*sumX) / n
+
+	// Step 3: 写入每项的拟合值
+	for i := range data {
+		x := X[i]
+		fit := a*x + b
+		data[i].FitPrice = math.Round(fit*100) / 100 // 保留两位小数
+	}
+
+	return data
+}
+
+// 辅助函数：解析 "2025年3月" → 202503
+func parseMonthNumber(monthStr string) int {
+	re := regexp.MustCompile(`(\\d{4})年(\\d{1,2})月`)
+	matches := re.FindStringSubmatch(monthStr)
+	if len(matches) == 3 {
+		year, _ := strconv.Atoi(matches[1])
+		month, _ := strconv.Atoi(matches[2])
+		return year*100 + month
+	}
+	return 0
 }

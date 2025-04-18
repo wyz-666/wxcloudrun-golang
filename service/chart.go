@@ -24,7 +24,8 @@ func GetMonthlyCEAStats() ([]response.MonthlyPriceStats, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	resultFit := AddFitPriceToStats(result)
+	return resultFit, nil
 }
 
 func GetMonthlyCCERStats() ([]response.MonthlyPriceStats, error) {
@@ -42,10 +43,12 @@ func GetMonthlyCCERStats() ([]response.MonthlyPriceStats, error) {
 		grouped[item.ApplicableTime] = append(grouped[item.ApplicableTime], item)
 	}
 	result, err := MonthlyAvg1(grouped, 41.57, 39.78, 40.68)
+
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+	resultFit := AddFitPriceToStats(result)
+	return resultFit, nil
 }
 
 func GetGECMonthlyStatsByType() ([]response.GECMonthlyPriceStats, error) {
