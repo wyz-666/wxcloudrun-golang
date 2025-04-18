@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"time"
 	"wxcloudrun-golang/app/handlers/request"
 	"wxcloudrun-golang/app/handlers/response"
@@ -15,7 +16,7 @@ import (
 )
 
 func MultiSubmit(c *gin.Context) {
-	glog.Info("################## Multi Quotation Submit ##################")
+	log.Println("################## Multi Quotation Submit ##################")
 	var quotations []request.ReqQuotation
 	if err := c.ShouldBind(&quotations); err != nil {
 		glog.Errorln(err.Error())
@@ -40,73 +41,73 @@ func MultiSubmit(c *gin.Context) {
 			return
 		}
 	}
-	glog.Info("multi quotation submit successful")
+	log.Println("multi quotation submit successful")
 	response.MakeSuccess(c, http.StatusOK, "successfully submit multi quotation!")
 	return
 }
 
 func SemiMonthSubmit(c *gin.Context) {
-	glog.Info("################## SemiMonth Quotation Submit ##################")
+	log.Println("################## SemiMonth Quotation Submit ##################")
 	var reqQuotation request.ReqQuotation
 	if err := c.ShouldBind(&reqQuotation); err != nil {
 		glog.Errorln(err.Error())
 		response.MakeFail(c, http.StatusNotAcceptable, err.Error())
 		return
 	}
-	glog.Info("semimonth quotation submit user:")
-	glog.Info(reqQuotation.UserID)
+	log.Println("semimonth quotation submit user:")
+	log.Println(reqQuotation.UserID)
 	err := service.AddSemiMonth(&reqQuotation)
 	if err != nil {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	glog.Info("semimonth quotation submit successful")
+	log.Println("semimonth quotation submit successful")
 	response.MakeSuccess(c, http.StatusOK, "successfully submit semimonth quotation!")
 	return
 }
 
 func MonthSubmit(c *gin.Context) {
-	glog.Info("################## Month Quotation Submit ##################")
+	log.Println("################## Month Quotation Submit ##################")
 	var reqQuotation request.ReqQuotation
 	if err := c.ShouldBind(&reqQuotation); err != nil {
 		glog.Errorln(err.Error())
 		response.MakeFail(c, http.StatusNotAcceptable, err.Error())
 		return
 	}
-	glog.Info("month quotation submit user:")
-	glog.Info(reqQuotation.UserID)
+	log.Println("month quotation submit user:")
+	log.Println(reqQuotation.UserID)
 	err := service.AddMonth(&reqQuotation)
 	if err != nil {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	glog.Info("month quotation submit successful")
+	log.Println("month quotation submit successful")
 	response.MakeSuccess(c, http.StatusOK, "successfully submit month quotation!")
 	return
 }
 
 func YearSubmit(c *gin.Context) {
-	glog.Info("################## Year Quotation Submit ##################")
+	log.Println("################## Year Quotation Submit ##################")
 	var reqQuotation request.ReqQuotation
 	if err := c.ShouldBind(&reqQuotation); err != nil {
 		glog.Errorln(err.Error())
 		response.MakeFail(c, http.StatusNotAcceptable, err.Error())
 		return
 	}
-	glog.Info("year quotation submit user:")
-	glog.Info(reqQuotation.UserID)
+	log.Println("year quotation submit user:")
+	log.Println(reqQuotation.UserID)
 	err := service.AddYear(&reqQuotation)
 	if err != nil {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	glog.Info("year quotation submit successful")
+	log.Println("year quotation submit successful")
 	response.MakeSuccess(c, http.StatusOK, "successfully submit year quotation!")
 	return
 }
 
 func ApproveQuotation(c *gin.Context) {
-	glog.Info("################## Approve Quotation ##################")
+	log.Println("################## Approve Quotation ##################")
 	var reqApproveQuotation request.ReqApproveQuotation
 	if err := c.ShouldBind(&reqApproveQuotation); err != nil {
 		glog.Errorln("approve quotation error")
@@ -135,7 +136,7 @@ func ApproveQuotation(c *gin.Context) {
 
 }
 func SemiMonthPublish(c *gin.Context) {
-	glog.Info("################## Publish SemiMonth Quotation ##################")
+	log.Println("################## Publish SemiMonth Quotation ##################")
 	timestr := c.Query("time")
 	t, err := time.Parse("2006-01-02 15:04:05", timestr)
 	res, err := service.GetApprovedSemimonthQuotations(t)
@@ -144,12 +145,12 @@ func SemiMonthPublish(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	glog.Info("publish semimonth quotation successful")
+	log.Println("publish semimonth quotation successful")
 	response.MakeSuccess(c, http.StatusOK, res)
 	return
 }
 func MonthPublish(c *gin.Context) {
-	glog.Info("################## Publish Month Quotation ##################")
+	log.Println("################## Publish Month Quotation ##################")
 	timestr := c.Query("time")
 	t, err := time.Parse("2006-01-02 15:04:05", timestr)
 	res, err := service.GetApprovedMonthQuotations(t)
@@ -158,12 +159,12 @@ func MonthPublish(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	glog.Info("publish month quotation successful")
+	log.Println("publish month quotation successful")
 	response.MakeSuccess(c, http.StatusOK, res)
 	return
 }
 func YearPublish(c *gin.Context) {
-	glog.Info("################## Publish Year Quotation ##################")
+	log.Println("################## Publish Year Quotation ##################")
 	timestr := c.Query("time")
 	t, err := time.Parse("2006-01-02 15:04:05", timestr)
 	res, err := service.GetApprovedYearQuotations(t)
@@ -172,13 +173,13 @@ func YearPublish(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	glog.Info("publish year quotation successful")
+	log.Println("publish year quotation successful")
 	response.MakeSuccess(c, http.StatusOK, res)
 	return
 }
 
 func GetApprovingSemiMonthQuotations(c *gin.Context) {
-	glog.Info("################## Get Approving SemiMonth Quotations ##################")
+	log.Println("################## Get Approving SemiMonth Quotations ##################")
 	var quotations []model.SemiMonthQuotation
 
 	cli := db.Get()
@@ -188,13 +189,13 @@ func GetApprovingSemiMonthQuotations(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, "get all approving semimonth quotations error")
 		return
 	}
-	glog.Info("get all approving semimonth quotations successful")
+	log.Println("get all approving semimonth quotations successful")
 	response.MakeSuccess(c, http.StatusOK, quotations)
 	return
 }
 
 func GetApprovingMonthQuotations(c *gin.Context) {
-	glog.Info("################## Get Approving Month Quotations ##################")
+	log.Println("################## Get Approving Month Quotations ##################")
 	var quotations []model.MonthQuotation
 
 	cli := db.Get()
@@ -204,13 +205,13 @@ func GetApprovingMonthQuotations(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, "get all approving month quotations error")
 		return
 	}
-	glog.Info("get all approving month quotations successful")
+	log.Println("get all approving month quotations successful")
 	response.MakeSuccess(c, http.StatusOK, quotations)
 	return
 }
 
 func GetApprovingYearQuotations(c *gin.Context) {
-	glog.Info("################## Get Approving Month Quotations ##################")
+	log.Println("################## Get Approving Month Quotations ##################")
 	var quotations []model.YearQuotation
 
 	cli := db.Get()
@@ -220,7 +221,7 @@ func GetApprovingYearQuotations(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, "get all approving year quotations error")
 		return
 	}
-	glog.Info("get all approving year quotations successful")
+	log.Println("get all approving year quotations successful")
 	response.MakeSuccess(c, http.StatusOK, quotations)
 	return
 }

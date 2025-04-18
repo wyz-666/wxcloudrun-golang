@@ -38,12 +38,12 @@ func Register(c *gin.Context) {
 
 func checkRegisterParams(reqUser *request.ReqUser) bool {
 	if reqUser.Name == "" || reqUser.Account == "" || reqUser.Type == 0 {
-		glog.Errorln("Missing user registration parameters")
+		log.Printf("[ERROR] Missing user registration parameters")
 		return false
 	}
 	ps := reqUser.Password
 	if len(ps) < 9 {
-		glog.Errorln("password len is < 9")
+		log.Printf("[ERROR] password len is < 9")
 		return false
 	}
 	return true
@@ -59,20 +59,20 @@ func Login(c *gin.Context) {
 	reqPwdHash := crypto.CalculateSHA256(reqLogin.Password, "FDUCPIF")
 	uuid, userID, pwdHash, userType, approved, err := service.QueryUserInfo(reqLogin.Account)
 	if err != nil {
-		glog.Errorln("query fsims password hash error!")
+		log.Printf("[ERROR] query fsims password hash error: %v", err)
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if userType == 2 && !approved {
-		glog.Errorln("该用户资格审批尚未通过!")
+		log.Println("[ERROR] 该用户资格审批尚未通过!")
 		response.MakeFail(c, http.StatusBadRequest, "该用户资格审批尚未通过!")
 		return
 	}
 
 	// check password
 	if reqPwdHash != pwdHash {
-		glog.Errorln("password incorrect!")
+		log.Println("[ERROR] password incorrect!")
 		response.MakeFail(c, http.StatusBadRequest, "password incorrecrt!")
 		return
 	}
@@ -80,7 +80,7 @@ func Login(c *gin.Context) {
 	// create jwt token with uuid
 	token, err := service.CreateJwtToken(uuid, userID, userType)
 	if err != nil {
-		glog.Errorln("create jwt token error!")
+		log.Println("[ERROR] create jwt token error!")
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -100,13 +100,13 @@ func ApproveUser(c *gin.Context) {
 	log.Println("################## Approve VIP User ##################")
 	var reqApprove request.ReqApproveUser
 	if err := c.ShouldBind(&reqApprove); err != nil {
-		glog.Errorln("approve user error")
+		log.Printf("[ERROR] approve user error: %v", err)
 		response.MakeFail(c, http.StatusNotAcceptable, "approve user failure!")
 		return
 	}
 	err := service.ApproveUser(reqApprove.Uuid)
 	if err != nil {
-		glog.Errorln("approve vip user error!")
+		log.Printf("[ERROR] approve vip user error:%v", err)
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -121,7 +121,7 @@ func GetAllUser(c *gin.Context) {
 	cli := db.Get()
 	err := cli.Find(&users).Error
 	if err != nil {
-		glog.Errorln("query all users error!")
+		log.Printf("[ERROR] query all users error:%v", err)
 		response.MakeFail(c, http.StatusBadRequest, "query all user error")
 		return
 	}
@@ -137,7 +137,7 @@ func GetAllApprovingUser(c *gin.Context) {
 	cli := db.Get()
 	err := cli.Where("approved = ?", false).Find(&users).Error
 	if err != nil {
-		glog.Errorln("query all approving users error!")
+		log.Printf("[ERROR] query all approving users error:%v", err)
 		response.MakeFail(c, http.StatusBadRequest, "query all approving user error")
 		return
 	}
@@ -151,7 +151,7 @@ func UpToVipByAdmin(c *gin.Context) {
 	uuid := c.Query("uuid")
 	err := service.UpToVipByAdmin(uuid)
 	if err != nil {
-		glog.Errorln("upgrade vip user error!")
+		log.Printf("[ERROR] upgrade vip user error:%v", err)
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}

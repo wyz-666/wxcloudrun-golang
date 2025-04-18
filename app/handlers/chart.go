@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"wxcloudrun-golang/app/handlers/response"
 	"wxcloudrun-golang/service"
@@ -10,7 +11,7 @@ import (
 )
 
 func GetMonthlyCCERStats(c *gin.Context) {
-	glog.Info("################## GetMonthlyCCERStats ##################")
+	log.Println("################## GetMonthlyCCERStats ##################")
 	result, err := service.GetMonthlyCCERStats()
 
 	if err != nil {
@@ -18,13 +19,13 @@ func GetMonthlyCCERStats(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, "get  monthly ccer stats error")
 		return
 	}
-	glog.Info("get monthly ccer stats successfully")
+	log.Println("get monthly ccer stats successfully")
 	response.MakeSuccess(c, http.StatusOK, result)
 	return
 }
 
 func GetMonthlyCEAStats(c *gin.Context) {
-	glog.Info("################## GetMonthlyCCERStats ##################")
+	log.Println("################## GetMonthlyCCERStats ##################")
 	result, err := service.GetMonthlyCEAStats()
 
 	if err != nil {
@@ -32,13 +33,13 @@ func GetMonthlyCEAStats(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, "get  monthly cea stats error")
 		return
 	}
-	glog.Info("get monthly cea stats successfully")
+	log.Println("get monthly cea stats successfully")
 	response.MakeSuccess(c, http.StatusOK, result)
 	return
 }
 
 func GetGECMonthlyStatsByType(c *gin.Context) {
-	glog.Info("################## GetMonthlyCCERStats ##################")
+	log.Println("################## GetMonthlyCCERStats ##################")
 	result, err := service.GetGECMonthlyStatsByType()
 
 	if err != nil {
@@ -46,7 +47,7 @@ func GetGECMonthlyStatsByType(c *gin.Context) {
 		response.MakeFail(c, http.StatusBadRequest, "get  monthly gec stats error")
 		return
 	}
-	glog.Info("get monthly gec stats successfully")
+	log.Println("get monthly gec stats successfully")
 	response.MakeSuccess(c, http.StatusOK, result)
 	return
 }
