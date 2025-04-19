@@ -22,7 +22,7 @@ func AddSemiMonth(quotation *request.ReqQuotation) error {
 	}
 	semiMonthQuotation := model.SemiMonthQuotation{
 		QID:            qid,
-		UserID:         quotation.UserID,
+		Uuid:           quotation.Uuid,
 		Product:        quotation.Product,
 		Type:           quotation.Type,
 		LowerPrice:     quotation.LowerPrice,
@@ -30,14 +30,14 @@ func AddSemiMonth(quotation *request.ReqQuotation) error {
 		Price:          quotation.Price,
 		TxVolume:       quotation.TxVolume,
 		ApplicableTime: resTime,
-		Approved:       false,
+		Approved:       true,
 	}
 
 	// 先查是否重复提交
 	var count int64
 	cli.Model(&model.SemiMonthQuotation{}).
 		Where("userId = ? AND product = ? AND type = ? AND applicableTime = ?",
-			quotation.UserID, quotation.Product, quotation.Type, resTime).
+			quotation.Uuid, quotation.Product, quotation.Type, resTime).
 		Count(&count)
 
 	if count > 0 {
@@ -62,7 +62,7 @@ func AddMonth(quotation *request.ReqQuotation) error {
 	}
 	monthQuotation := model.MonthQuotation{
 		QID:            qid,
-		UserID:         quotation.UserID,
+		Uuid:           quotation.Uuid,
 		Product:        quotation.Product,
 		Type:           quotation.Type,
 		LowerPrice:     quotation.LowerPrice,
@@ -70,14 +70,14 @@ func AddMonth(quotation *request.ReqQuotation) error {
 		Price:          quotation.Price,
 		TxVolume:       quotation.TxVolume,
 		ApplicableTime: resTime,
-		Approved:       false,
+		Approved:       true,
 	}
 
 	// 先查是否重复提交
 	var count int64
 	cli.Model(&model.MonthQuotation{}).
 		Where("userId = ? AND product = ? AND type = ? AND applicableTime = ?",
-			quotation.UserID, quotation.Product, quotation.Type, resTime).
+			quotation.Uuid, quotation.Product, quotation.Type, resTime).
 		Count(&count)
 
 	if count > 0 {
@@ -95,6 +95,7 @@ func AddMonth(quotation *request.ReqQuotation) error {
 func AddYear(quotation *request.ReqQuotation) error {
 	var resTime string
 	cli := db.Get()
+	submitTime, _, err := getMonthTimeAndID(quotation.NowTime, cli)
 	resTime, qid, err := getYearTimeAndID(quotation.NowTime, cli)
 
 	start := quotation.NowTime.Truncate(24 * time.Hour)
@@ -106,7 +107,7 @@ func AddYear(quotation *request.ReqQuotation) error {
 	}
 	yearQuotation := model.YearQuotation{
 		QID:            qid,
-		UserID:         quotation.UserID,
+		Uuid:           quotation.Uuid,
 		Product:        quotation.Product,
 		Type:           quotation.Type,
 		LowerPrice:     quotation.LowerPrice,
@@ -114,13 +115,14 @@ func AddYear(quotation *request.ReqQuotation) error {
 		Price:          quotation.Price,
 		TxVolume:       quotation.TxVolume,
 		ApplicableTime: resTime,
-		Approved:       false,
+		SubmitTime:     submitTime,
+		Approved:       true,
 	}
 
 	var count int64
 	cli.Model(&model.YearQuotation{}).
 		Where("userId = ? AND product = ? AND created_at >= ? AND created_at < ?",
-			quotation.UserID, quotation.Product, monthStart, nextMonthStart).
+			quotation.Uuid, quotation.Product, monthStart, nextMonthStart).
 		Count(&count)
 
 	if count > 0 {

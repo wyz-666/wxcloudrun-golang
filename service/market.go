@@ -24,8 +24,6 @@ func MarketSubmit(m *request.ReqMarket, s string) error {
 	} else {
 		ccerMarket := model.CCERMarket{
 			Date:         m.Date,
-			LowerPrice:   m.LowerPrice,
-			HigherPrice:  m.HigherPrice,
 			ClosingPrice: m.ClosingPrice,
 		}
 		err := cli.Create(&ccerMarket).Error

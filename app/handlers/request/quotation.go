@@ -4,7 +4,7 @@ import "time"
 
 type ReqQuotation struct {
 	FormName    string    `json:"formName" form:"formName"`
-	UserID      string    `json:"userId" form:"userId"`
+	Uuid        string    `json:"uuid" form:"uuid"`
 	Product     string    `json:"product" form:"product"`
 	Type        string    `json:"type" form:"type"`
 	LowerPrice  string    `json:"lowerPrice" form:"lowerPrice"`

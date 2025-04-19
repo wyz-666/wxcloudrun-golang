@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CEAMarketSubmit(c *gin.Context) {
+func MarketSubmit(c *gin.Context) {
 	log.Println("################## CEA Market Submit ##################")
 	var reqMarket request.ReqMarket
 	if err := c.ShouldBind(&reqMarket); err != nil {
@@ -20,33 +20,34 @@ func CEAMarketSubmit(c *gin.Context) {
 		response.MakeFail(c, http.StatusNotAcceptable, err.Error())
 		return
 	}
-	err := service.MarketSubmit(&reqMarket, "CEA")
+
+	err := service.MarketSubmit(&reqMarket, reqMarket.Product)
 	if err != nil {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	log.Println("CEA market submit successful")
-	response.MakeSuccess(c, http.StatusOK, "successfully CEA market submit!")
+	log.Println("market submit successful")
+	response.MakeSuccess(c, http.StatusOK, "successfully market submit!")
 	return
 }
 
-func CCERMarketSubmit(c *gin.Context) {
-	log.Println("################## CCER Market Submit ##################")
-	var reqMarket request.ReqMarket
-	if err := c.ShouldBind(&reqMarket); err != nil {
-		log.Printf("[ERROR] : %v", err)
-		response.MakeFail(c, http.StatusNotAcceptable, err.Error())
-		return
-	}
-	err := service.MarketSubmit(&reqMarket, "CCER")
-	if err != nil {
-		response.MakeFail(c, http.StatusBadRequest, err.Error())
-		return
-	}
-	log.Println("CCER market submit successful")
-	response.MakeSuccess(c, http.StatusOK, "successfully CCER market submit!")
-	return
-}
+// func CCERMarketSubmit(c *gin.Context) {
+// 	log.Println("################## CCER Market Submit ##################")
+// 	var reqMarket request.ReqMarket
+// 	if err := c.ShouldBind(&reqMarket); err != nil {
+// 		log.Printf("[ERROR] : %v", err)
+// 		response.MakeFail(c, http.StatusNotAcceptable, err.Error())
+// 		return
+// 	}
+// 	err := service.MarketSubmit(&reqMarket, "CCER")
+// 	if err != nil {
+// 		response.MakeFail(c, http.StatusBadRequest, err.Error())
+// 		return
+// 	}
+// 	log.Println("CCER market submit successful")
+// 	response.MakeSuccess(c, http.StatusOK, "successfully CCER market submit!")
+// 	return
+// }
 
 func GetCCERMarket(c *gin.Context) {
 	var ms []model.CCERMarket

@@ -55,7 +55,7 @@ func SemiMonthSubmit(c *gin.Context) {
 		return
 	}
 	log.Println("semimonth quotation submit user:")
-	log.Println(reqQuotation.UserID)
+	log.Println(reqQuotation.Uuid)
 	err := service.AddSemiMonth(&reqQuotation)
 	if err != nil {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
@@ -75,7 +75,7 @@ func MonthSubmit(c *gin.Context) {
 		return
 	}
 	log.Println("month quotation submit user:")
-	log.Println(reqQuotation.UserID)
+	log.Println(reqQuotation.Uuid)
 	err := service.AddMonth(&reqQuotation)
 	if err != nil {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())
@@ -95,7 +95,7 @@ func YearSubmit(c *gin.Context) {
 		return
 	}
 	log.Println("year quotation submit user:")
-	log.Println(reqQuotation.UserID)
+	log.Println(reqQuotation.Uuid)
 	err := service.AddYear(&reqQuotation)
 	if err != nil {
 		response.MakeFail(c, http.StatusBadRequest, err.Error())

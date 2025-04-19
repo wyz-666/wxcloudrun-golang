@@ -68,10 +68,10 @@ func main() {
 		admin.GET("approvingsemimonth", handlers.GetApprovingSemiMonthQuotations)
 		admin.GET("approvingmonth", handlers.GetApprovingMonthQuotations)
 		admin.GET("approvingyear", handlers.GetApprovingYearQuotations)
-		admin.POST("uploadCEA", handlers.CEAMarketSubmit)
-		admin.POST("uploadCCER", handlers.CCERMarketSubmit)
+		admin.POST("uploadMarket", handlers.MarketSubmit)
 		admin.GET("getCEA", handlers.GetCEAMarket)
 		admin.GET("getCCER", handlers.GetCCERMarket)
+		admin.GET("getNewAvg", handlers.GetCEAGroupAVG)
 	}
 	r.GET("/", service.IndexHandler)
 	r.GET("/api/count", service.GetCounterHandler)

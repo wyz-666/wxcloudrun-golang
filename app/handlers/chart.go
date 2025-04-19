@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"time"
 	"wxcloudrun-golang/app/handlers/response"
 	"wxcloudrun-golang/service"
 
@@ -48,6 +49,25 @@ func GetGECMonthlyStatsByType(c *gin.Context) {
 		return
 	}
 	log.Println("get monthly gec stats successfully")
+	response.MakeSuccess(c, http.StatusOK, result)
+	return
+}
+
+func GetCEAGroupAVG(c *gin.Context) {
+	log.Println("################## Get CEA Group AVG ##################")
+	nowTimeStr := c.Query("nowTime")
+	t, err := time.Parse("2006-01-02 15:04:05", nowTimeStr)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": "nowTime 格式错误", "error": err.Error()})
+		return
+	}
+	result, err := service.GetCEAStatsNextMonth(t)
+	if err != nil {
+		log.Printf("Get CEA Group AVG error!")
+		response.MakeFail(c, http.StatusBadRequest, "Get CEA Group AVG error")
+		return
+	}
+	log.Println("Get CEA Group AVG successfully")
 	response.MakeSuccess(c, http.StatusOK, result)
 	return
 }
