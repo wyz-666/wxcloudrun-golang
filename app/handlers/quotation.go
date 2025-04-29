@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"time"
 	"wxcloudrun-golang/app/handlers/request"
@@ -223,5 +224,61 @@ func GetApprovingYearQuotations(c *gin.Context) {
 	}
 	log.Println("get all approving year quotations successful")
 	response.MakeSuccess(c, http.StatusOK, quotations)
+	return
+}
+
+func AdminGetMonthQuotation(c *gin.Context) {
+	log.Println("################## Admin Get Month Quotation ##################")
+	timestr := c.Query("nowTime")
+	product := c.Query("product")
+	t, err := time.Parse("2006-01-02 15:04:05", timestr)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": "nowTime 格式错误", "error": err.Error()})
+		return
+	}
+	y, m, _ := t.Date()
+	nextMonth := m + 1
+	nextYear := y
+	if nextMonth > 12 {
+		nextMonth = 1
+		nextYear++
+	}
+	nextMonthStr := fmt.Sprintf("%d年%d月\n", nextYear, nextMonth)
+	var res []model.MonthQuotation
+	cli := db.Get()
+	err = cli.Where("applicableTime = ? AND product = ?", nextMonthStr, product).Find(&res).Error
+	if err != nil {
+		glog.Errorln("[ERROR]Admin Get Month Quotation error")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("Admin Get Month Quotation successful")
+	response.MakeSuccess(c, http.StatusOK, res)
+	return
+}
+
+func AdminGetYearQuotation(c *gin.Context) {
+	log.Println("################## Admin Get Year Quotation ##################")
+	timestr := c.Query("time")
+	product := c.Query("product")
+	t, err := time.Parse("2006-01-02 15:04:05", timestr)
+	y, m, _ := t.Date()
+	nextMonth := m + 1
+	nextYear := y
+	if nextMonth > 12 {
+		nextMonth = 1
+		nextYear++
+	}
+	nextMonthStr := fmt.Sprintf("%d年%d月\n", nextYear, nextMonth)
+	var res []model.YearQuotation
+	cli := db.Get()
+	err = cli.Where("submitTime = ? AND product = ?", nextMonthStr, product).Find(&res).Error
+	if err != nil {
+		glog.Errorln("[ERROR]Admin Get Year Quotation error")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("Admin Get Year Quotation successful")
+	response.MakeSuccess(c, http.StatusOK, res)
 	return
 }

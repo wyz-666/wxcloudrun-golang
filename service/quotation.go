@@ -76,7 +76,7 @@ func AddMonth(quotation *request.ReqQuotation) error {
 	// 先查是否重复提交
 	var count int64
 	cli.Model(&model.MonthQuotation{}).
-		Where("userId = ? AND product = ? AND type = ? AND applicableTime = ?",
+		Where("uuid = ? AND product = ? AND type = ? AND applicableTime = ?",
 			quotation.Uuid, quotation.Product, quotation.Type, resTime).
 		Count(&count)
 
@@ -350,24 +350,31 @@ func GetApprovedYearQuotations(t time.Time) ([]model.YearQuotation, error) {
 	firstOfNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
 	lastDay := firstOfNextMonth.AddDate(0, 0, -1).Day()
 
-	var start, end time.Time
+	// var start, end time.Time
 
 	if day == 29 || (lastDay < 29 && day == lastDay) {
-		// 本月第一天
-		start = time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
-		// 下月第一天（即本月最后一秒的下一秒）
-		end = start.AddDate(0, 1, 0)
+		// // 本月第一天
+		// start = time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+		// // 下月第一天（即本月最后一秒的下一秒）
+		// end = start.AddDate(0, 1, 0)
+		nextMonth := month + 1
+		nextYear := year
+		if nextMonth > 12 {
+			nextMonth = 1
+			nextYear++
+		}
+		nowMonth := fmt.Sprintf("%d年%d月\n", nextYear, nextMonth)
+		var result []model.YearQuotation
+		cli := db.Get()
+		err := cli.Where("submitTime = ? AND approved = ?", nowMonth, true).
+			Find(&result).Error
+		if err != nil {
+			return nil, err
+		}
+		return result, nil
 	} else {
 		// 不是公示日
 		return nil, errors.New("不是公示日")
 	}
 
-	var result []model.YearQuotation
-	cli := db.Get()
-	err := cli.Where("created_at >= ? AND created_at < ? AND approved = ?", start, end, true).
-		Find(&result).Error
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
 }

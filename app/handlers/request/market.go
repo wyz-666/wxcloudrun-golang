@@ -7,3 +7,12 @@ type ReqMarket struct {
 	HigherPrice  string `json:"higherPrice" form:"higherPrice"`
 	ClosingPrice string `json:"closingPrice" form:"closingPrice"`
 }
+
+type ReqExpectation struct {
+	Product     string  `json:"product" form:"product"`
+	Type        string  `json:"type" form:"type"`
+	Date        string  `json:"date" form:"date"`
+	LowerPrice  float64 `json:"lowerPrice" form:"lowerPrice"`
+	HigherPrice float64 `json:"higherPrice" form:"higherPrice"`
+	MidPrice    float64 `json:"midPrice" form:"midPrice"`
+}

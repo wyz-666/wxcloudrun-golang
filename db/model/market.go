@@ -15,3 +15,31 @@ type CCERMarket struct {
 	Date         string `gorm:"column:date;" json:"date"`
 	ClosingPrice string `gorm:"column:closingPrice" json:"closingPrice"`
 }
+
+type CEAMonthExpectation struct {
+	Date             string  `gorm:"column:date;type:varchar(64);uniqueIndex" json:"date"`
+	LowerPrice       float64 `gorm:"column:lowerPrice" json:"lowerPrice"`
+	HigherPrice      float64 `gorm:"column:higherPrice" json:"higherPrice"`
+	MidPrice         float64 `gorm:"column:midPrice" json:"midPrice"`
+	LowerPriceIndex  float64 `gorm:"column:lowerPriceIndex" json:"lowerPriceIndex"`
+	HigherPriceIndex float64 `gorm:"column:higherPriceIndex" json:"higherPriceIndex"`
+	MidPriceIndex    float64 `gorm:"column:midPriceIndex" json:"midPriceIndex"`
+}
+type CCERMonthExpectation struct {
+	Date             string  `gorm:"column:date;type:varchar(64);uniqueIndex" json:"date"`
+	LowerPrice       float64 `gorm:"column:lowerPrice" json:"lowerPrice"`
+	HigherPrice      float64 `gorm:"column:higherPrice" json:"higherPrice"`
+	MidPrice         float64 `gorm:"column:midPrice" json:"midPrice"`
+	LowerPriceIndex  float64 `gorm:"column:lowerPriceIndex" json:"lowerPriceIndex"`
+	HigherPriceIndex float64 `gorm:"column:higherPriceIndex" json:"higherPriceIndex"`
+	MidPriceIndex    float64 `gorm:"column:midPriceIndex" json:"midPriceIndex"`
+}
+type CEAYearExpectation struct {
+	Date             string  `gorm:"column:date;type:varchar(64);uniqueIndex" json:"date"`
+	LowerPrice       float64 `gorm:"column:lowerPrice" json:"lowerPrice"`
+	HigherPrice      float64 `gorm:"column:higherPrice" json:"higherPrice"`
+	MidPrice         float64 `gorm:"column:midPrice" json:"midPrice"`
+	LowerPriceIndex  float64 `gorm:"column:lowerPriceIndex" json:"lowerPriceIndex"`
+	HigherPriceIndex float64 `gorm:"column:higherPriceIndex" json:"higherPriceIndex"`
+	MidPriceIndex    float64 `gorm:"column:midPriceIndex" json:"midPriceIndex"`
+}
