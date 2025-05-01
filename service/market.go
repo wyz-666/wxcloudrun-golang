@@ -43,6 +43,23 @@ func MarketSubmit(m *request.ReqMarket, s string) error {
 	return nil
 }
 
+func GECStatsSubmit(e *request.ReqGECExpectation) error {
+	cli := db.Get()
+	res := model.GECMonthExpectation{
+		Product:    e.Product,
+		Type:       e.Type,
+		Date:       e.Date,
+		Price:      e.Price,
+		PriceIndex: e.PriceIndex,
+	}
+	err := cli.Create(&res).Error
+	if err != nil {
+		log.Printf("[ERROR] GEC Submit stats error: %v", err)
+		return err
+	}
+	return nil
+}
+
 func StatsSubmit(e *request.ReqExpectation) error {
 	cli := db.Get()
 	if e.Product == "CEA" {

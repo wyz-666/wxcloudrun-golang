@@ -282,3 +282,63 @@ func AdminGetYearQuotation(c *gin.Context) {
 	response.MakeSuccess(c, http.StatusOK, res)
 	return
 }
+
+func GetCEAMonthExpectation(c *gin.Context) {
+	log.Println("################## Get CEA Month Expectation ##################")
+	var res []model.CEAMonthExpectation
+	cli := db.Get()
+	err := cli.Find(&res).Error
+	if err != nil {
+		glog.Errorln("[ERROR]Get CEA Month Expectation")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("Get CEA Month Expectation successful")
+	response.MakeSuccess(c, http.StatusOK, res)
+	return
+}
+
+func GetCEAYearExpectation(c *gin.Context) {
+	log.Println("################## Get CEA Year Expectation ##################")
+	var res []model.CEAYearExpectation
+	cli := db.Get()
+	err := cli.Find(&res).Error
+	if err != nil {
+		glog.Errorln("[ERROR]Get CEA Year Expectation")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("Get CEA Year Expectation successful")
+	response.MakeSuccess(c, http.StatusOK, res)
+	return
+}
+
+func GetCCERMonthExpectation(c *gin.Context) {
+	log.Println("################## Get CCER Month Expectation ##################")
+	var res []model.CCERMonthExpectation
+	cli := db.Get()
+	err := cli.Find(&res).Error
+	if err != nil {
+		glog.Errorln("[ERROR]Get CCER Month Expectation")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("Get CCER Month Expectation successful")
+	response.MakeSuccess(c, http.StatusOK, res)
+	return
+}
+
+func GetGECMonthExpectation(c *gin.Context) {
+	log.Println("################## Get GEC Month Expectation ##################")
+	var res []model.GECMonthExpectation
+	cli := db.Get()
+	err := cli.Find(&res).Error
+	if err != nil {
+		glog.Errorln("[ERROR]Get GEC Month Expectation")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("Get GEC Month Expectation successful")
+	response.MakeSuccess(c, http.StatusOK, res)
+	return
+}

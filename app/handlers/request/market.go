@@ -16,3 +16,11 @@ type ReqExpectation struct {
 	HigherPrice float64 `json:"higherPrice" form:"higherPrice"`
 	MidPrice    float64 `json:"midPrice" form:"midPrice"`
 }
+
+type ReqGECExpectation struct {
+	Product    string  `json:"product" form:"product"`
+	Type       string  `json:"type" form:"type"`
+	Date       string  `json:"date" form:"date"`
+	Price      float64 `json:"price" form:"price"`
+	PriceIndex float64 `json:"priceIndex" form:"priceIndex"`
+}

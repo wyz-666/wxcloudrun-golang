@@ -51,6 +51,24 @@ func StatsSubmit(c *gin.Context) {
 	return
 }
 
+func GECStatsSubmit(c *gin.Context) {
+	log.Println("################## GEC Stats Submit ##################")
+	var reqExpectation request.ReqGECExpectation
+	if err := c.ShouldBind(&reqExpectation); err != nil {
+		log.Printf("[ERROR] : %v", err)
+		response.MakeFail(c, http.StatusNotAcceptable, err.Error())
+		return
+	}
+	err := service.GECStatsSubmit(&reqExpectation)
+	if err != nil {
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("GEC stats submit successful")
+	response.MakeSuccess(c, http.StatusOK, "successfully GEC stats submit!")
+	return
+}
+
 // func CCERMarketSubmit(c *gin.Context) {
 // 	log.Println("################## CCER Market Submit ##################")
 // 	var reqMarket request.ReqMarket

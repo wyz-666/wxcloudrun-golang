@@ -71,6 +71,7 @@ func main() {
 		// admin.GET("approvingyear", handlers.GetApprovingYearQuotations)
 		admin.POST("uploadMarket", handlers.MarketSubmit)
 		admin.POST("submitStats", handlers.StatsSubmit)
+		admin.POST("submitGECStats", handlers.GECStatsSubmit)
 		admin.GET("getCEA", handlers.GetCEAMarket)
 		admin.GET("getCCER", handlers.GetCCERMarket)
 		admin.GET("getNewMonthAvg", handlers.GetMonthGroupAVG)
@@ -78,6 +79,10 @@ func main() {
 		admin.GET("getScoreList", handlers.GetCEAMonthScore)
 		admin.GET("getMonthQuotation", handlers.AdminGetMonthQuotation)
 		admin.GET("getYearQuotation", handlers.AdminGetYearQuotation)
+		admin.GET("getCEAMonthExpectation", handlers.GetCEAMonthExpectation)
+		admin.GET("getCCERMonthExpectation", handlers.GetCCERMonthExpectation)
+		admin.GET("getCEAYearExpectation", handlers.GetCEAYearExpectation)
+		admin.GET("getGECMonthExpectation", handlers.GetGECMonthExpectation)
 	}
 	r.GET("/", service.IndexHandler)
 	r.GET("/api/count", service.GetCounterHandler)
