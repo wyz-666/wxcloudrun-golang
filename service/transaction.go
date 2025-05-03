@@ -19,7 +19,7 @@ func SellerTxSubmit(tx *request.ReqTransaction) error {
 	}
 	sellerTx := model.SellerTx{
 		TID:      tid,
-		UserID:   tx.UserID,
+		Uuid:     tx.Uuid,
 		Project:  tx.Project,
 		Type:     tx.Type,
 		Price:    tx.Price,
@@ -42,7 +42,7 @@ func BuyerTxSubmit(tx *request.ReqTransaction) error {
 	}
 	buyerTx := model.BuyerTx{
 		TID:      tid,
-		UserID:   tx.UserID,
+		Uuid:     tx.Uuid,
 		Project:  tx.Project,
 		Type:     tx.Type,
 		Price:    tx.Price,
@@ -77,6 +77,35 @@ func GetBuyerTx() ([]model.BuyerTx, error) {
 	return result, nil
 }
 
+func SubmitNotition(n *request.ReqNotition) error {
+	cli := db.Get()
+	var user model.User
+	err := cli.Where("uuid = ?", n.Uuid).First(&user).Error
+	if err != nil {
+		return err
+	}
+	nid, err := generateNID(cli)
+	if err != nil {
+		return err
+	}
+	notition := model.Notition{
+		NID:         nid,
+		Uuid:        n.Uuid,
+		Type:        n.Type,
+		UserName:    user.UserName,
+		CompanyName: user.CompanyName,
+		Phone:       user.Phone,
+		Email:       user.Email,
+		State:       1,
+	}
+	err = cli.Create(&notition).Error
+	if err != nil {
+		glog.Errorln("Submit notition error: %v", err)
+		return err
+	}
+	return nil
+}
+
 func generateTID(db *gorm.DB, model interface{}) (string, error) {
 	now := time.Now()
 	dateStr := now.Format("20060102")
@@ -90,4 +119,18 @@ func generateTID(db *gorm.DB, model interface{}) (string, error) {
 	seq := count + 1
 	qid := fmt.Sprintf("Q%s-%06d", dateStr, seq)
 	return qid, nil
+}
+
+func generateNID(db *gorm.DB) (string, error) {
+	now := time.Now()
+	dateStr := now.Format("20060102")
+
+	var count int64
+	err := db.Model(model.Notition{}).Count(&count).Error
+	if err != nil {
+		return "", err
+	}
+	seq := count + 1
+	nid := fmt.Sprintf("Q%s-%06d", dateStr, seq)
+	return nid, nil
 }

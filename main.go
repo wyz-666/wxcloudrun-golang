@@ -47,6 +47,8 @@ func main() {
 		user.GET("buyertx", handlers.BuyerTxPublish)
 		//申请升级为VIP
 		user.POST("applyVip", handlers.ApplyToVip)
+		//联系管理员
+		user.POST("submitNotition", handlers.SubmitNotition)
 	}
 	// all := r.Group("/all",middlewares.JwtAuth())
 	// {
@@ -83,6 +85,14 @@ func main() {
 		admin.GET("getCCERMonthExpectation", handlers.GetCCERMonthExpectation)
 		admin.GET("getCEAYearExpectation", handlers.GetCEAYearExpectation)
 		admin.GET("getGECMonthExpectation", handlers.GetGECMonthExpectation)
+		admin.GET("getNotion", handlers.GetNotion)
+		admin.GET("getNotionByState", handlers.GetNotionByState)
+		admin.GET("fixNotionState", handlers.FixNotion)
+		admin.GET("fixBuyerTx", handlers.FixBuyerTx)
+		admin.GET("fixSellerTx", handlers.FixSellerTx)
+		admin.GET("allBuyerTx", handlers.GetAllBuyerTx)
+		admin.GET("allSellerTx", handlers.GetAllSellerTx)
+
 	}
 	r.GET("/", service.IndexHandler)
 	r.GET("/api/count", service.GetCounterHandler)
