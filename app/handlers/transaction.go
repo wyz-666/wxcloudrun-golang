@@ -241,3 +241,18 @@ func GetLatestBoard(c *gin.Context) {
 	response.MakeSuccess(c, http.StatusOK, board)
 	return
 }
+
+func GetAllBoards(c *gin.Context) {
+	log.Println("################## Get All Board ##################")
+	var board []model.Board
+	cli := db.Get()
+	err := cli.Find(&board).Error
+	if err != nil {
+		glog.Errorln("get all board error")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("get all board successful")
+	response.MakeSuccess(c, http.StatusOK, board)
+	return
+}
