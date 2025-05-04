@@ -90,6 +90,7 @@ func SubmitNotition(n *request.ReqNotition) error {
 	}
 	notition := model.Notition{
 		NID:         nid,
+		TID:         n.Tid,
 		Uuid:        n.Uuid,
 		Type:        n.Type,
 		UserName:    user.UserName,
@@ -131,6 +132,6 @@ func generateNID(db *gorm.DB) (string, error) {
 		return "", err
 	}
 	seq := count + 1
-	nid := fmt.Sprintf("Q%s-%06d", dateStr, seq)
+	nid := fmt.Sprintf("N%s-%06d", dateStr, seq)
 	return nid, nil
 }

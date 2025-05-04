@@ -203,3 +203,41 @@ func SubmitNotition(c *gin.Context) {
 	response.MakeSuccess(c, http.StatusOK, "Submit Notition transaction!")
 	return
 }
+
+func SubmitBoard(c *gin.Context) {
+	log.Println("################## Submit Board ##################")
+	var reqBoard request.ReqBoard
+	if err := c.ShouldBind(&reqBoard); err != nil {
+		glog.Errorln(err.Error())
+		response.MakeFail(c, http.StatusNotAcceptable, err.Error())
+		return
+	}
+	board := model.Board{
+		Date:    reqBoard.Date,
+		Content: reqBoard.Content,
+	}
+	cli := db.Get()
+	err := cli.Create(&board).Error
+	if err != nil {
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("Submit Board successful")
+	response.MakeSuccess(c, http.StatusOK, "Submit Board transaction!")
+	return
+}
+
+func GetLatestBoard(c *gin.Context) {
+	log.Println("################## Get Latest Board ##################")
+	var board model.Board
+	cli := db.Get()
+	err := cli.Order("id desc").First(&board).Error
+	if err != nil {
+		glog.Errorln("get latest board error")
+		response.MakeFail(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	log.Println("get latest board successful")
+	response.MakeSuccess(c, http.StatusOK, board)
+	return
+}

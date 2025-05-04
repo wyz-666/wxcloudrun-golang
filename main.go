@@ -49,6 +49,8 @@ func main() {
 		user.POST("applyVip", handlers.ApplyToVip)
 		//联系管理员
 		user.POST("submitNotition", handlers.SubmitNotition)
+		//最新公告
+		user.GET("latestBoard", handlers.GetLatestBoard)
 	}
 	// all := r.Group("/all",middlewares.JwtAuth())
 	// {
@@ -92,6 +94,7 @@ func main() {
 		admin.GET("fixSellerTx", handlers.FixSellerTx)
 		admin.GET("allBuyerTx", handlers.GetAllBuyerTx)
 		admin.GET("allSellerTx", handlers.GetAllSellerTx)
+		admin.POST("submitBorad", handlers.SubmitBoard)
 
 	}
 	r.GET("/", service.IndexHandler)

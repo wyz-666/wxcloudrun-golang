@@ -13,3 +13,8 @@ type ReqNotition struct {
 	Tid  string `json:"tid" form:"tid"`
 	Type string `json:"type" form:"type"`
 }
+
+type ReqBoard struct {
+	Date    string `json:"date" form:"date"`
+	Content string `json:"content" form:"content"`
+}
