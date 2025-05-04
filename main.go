@@ -95,7 +95,7 @@ func main() {
 		admin.GET("allBuyerTx", handlers.GetAllBuyerTx)
 		admin.GET("allSellerTx", handlers.GetAllSellerTx)
 		admin.POST("submitBorad", handlers.SubmitBoard)
-		admin.POST("allBoards", handlers.GetAllBoards)
+		admin.GET("allBoards", handlers.GetAllBoards)
 
 	}
 	r.GET("/", service.IndexHandler)
