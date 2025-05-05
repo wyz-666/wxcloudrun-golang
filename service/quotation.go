@@ -205,11 +205,12 @@ func getMonthTimeAndID(nowTime time.Time, db *gorm.DB) (string, string, error) {
 	seq := count + 1
 	qid := fmt.Sprintf("Q%s-%06d", dateStr, seq)
 	// 获取当前月的最后一天
-	firstOfNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
-	lastDay := firstOfNextMonth.AddDate(0, 0, -1).Day()
+	// firstOfNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
+	// lastDay := firstOfNextMonth.AddDate(0, 0, -1).Day()
 
 	// 判断是否为28号，或是特殊月的最后一天（28或27）
-	if day == 28 || (lastDay < 29 && day == lastDay-1) {
+	// if day == 28 || (lastDay < 29 && day == lastDay-1) {
+	if day < 27 && day > 21 {
 		// 下一个月
 		nextMonth := month + 1
 		nextYear := year
@@ -242,12 +243,13 @@ func getYearTimeAndID(nowTime time.Time, db *gorm.DB) (string, string, error) {
 	seq := count + 1
 	qid := fmt.Sprintf("Q%s-%06d", dateStr, seq)
 	// 获取当前月的最后一天
-	firstOfNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
-	lastDay := firstOfNextMonth.AddDate(0, 0, -1).Day()
+	// firstOfNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
+	// lastDay := firstOfNextMonth.AddDate(0, 0, -1).Day()
 
 	// 判断是否为29号，或是特殊月的最后一天（28或27）
-	if day == 28 || (lastDay < 29 && day == lastDay-1) {
-		// 下一个月
+	// if day == 28 || (lastDay < 29 && day == lastDay-1) {
+	// 下一个月
+	if day < 27 && day > 21 {
 		nextMonth := month + 1
 		nextYear := year
 		if nextMonth > 12 {
@@ -307,30 +309,30 @@ func GetApprovedSemimonthQuotations(t time.Time) ([]model.SemiMonthQuotation, er
 	return result, nil
 }
 
-func GetApprovedMonthQuotations(t time.Time) ([]model.MonthQuotation, error) {
-	// now := time.Now()
-	// year, month, day := now.Date()
-	year, month, day := t.Date()
+func GetApprovedMonthQuotations() ([]model.MonthQuotation, error) {
+	now := time.Now()
+	year, month, _ := now.Date()
+	// year, month, day := t.Date()
 
 	// 获取本月最后一天
-	firstOfNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
-	lastDay := firstOfNextMonth.AddDate(0, 0, -1).Day()
+	// firstOfNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
+	// lastDay := firstOfNextMonth.AddDate(0, 0, -1).Day()
 
 	var targetPeriod string
 
-	if day == 29 || (lastDay < 29 && day == lastDay) {
-		// 29号或特殊月最后一天，查下个月1-15号
-		nextMonth := month + 1
-		nextYear := year
-		if nextMonth > 12 {
-			nextMonth = 1
-			nextYear++
-		}
-		targetPeriod = fmt.Sprintf("%d年%d月\n", nextYear, nextMonth)
-	} else {
-		// 不是公示日
-		return nil, errors.New("不是公示日")
+	// if day == 29 || (lastDay < 29 && day == lastDay) {
+	// 29号或特殊月最后一天，查下个月1-15号
+	nextMonth := month + 1
+	nextYear := year
+	if nextMonth > 12 {
+		nextMonth = 1
+		nextYear++
 	}
+	targetPeriod = fmt.Sprintf("%d年%d月\n", nextYear, nextMonth)
+	// } else {
+	// 不是公示日
+	// return nil, errors.New("不是公示日")
+	// }
 
 	// 查询
 	var result []model.MonthQuotation
@@ -342,39 +344,40 @@ func GetApprovedMonthQuotations(t time.Time) ([]model.MonthQuotation, error) {
 	return result, nil
 }
 
-func GetApprovedYearQuotations(t time.Time) ([]model.YearQuotation, error) {
-	// now := time.Now()
-	// year, month, day := now.Date()
-	year, month, day := t.Date()
+func GetApprovedYearQuotations() ([]model.YearQuotation, error) {
+	now := time.Now()
+	year, month, _ := now.Date()
+	// year, month, day := t.Date()
 	// 获取本月最后一天
-	firstOfNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
-	lastDay := firstOfNextMonth.AddDate(0, 0, -1).Day()
+	// firstOfNextMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
+	// lastDay := firstOfNextMonth.AddDate(0, 0, -1).Day()
 
 	// var start, end time.Time
 
-	if day == 29 || (lastDay < 29 && day == lastDay) {
-		// // 本月第一天
-		// start = time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
-		// // 下月第一天（即本月最后一秒的下一秒）
-		// end = start.AddDate(0, 1, 0)
-		nextMonth := month + 1
-		nextYear := year
-		if nextMonth > 12 {
-			nextMonth = 1
-			nextYear++
-		}
-		nowMonth := fmt.Sprintf("%d年%d月\n", nextYear, nextMonth)
-		var result []model.YearQuotation
-		cli := db.Get()
-		err := cli.Where("submitTime = ? AND approved = ?", nowMonth, true).
-			Find(&result).Error
-		if err != nil {
-			return nil, err
-		}
-		return result, nil
-	} else {
-		// 不是公示日
-		return nil, errors.New("不是公示日")
+	// if day == 29 || (lastDay < 29 && day == lastDay) {
+	// // 本月第一天
+	// start = time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	// // 下月第一天（即本月最后一秒的下一秒）
+	// end = start.AddDate(0, 1, 0)
+	nextMonth := month + 1
+	nextYear := year
+	if nextMonth > 12 {
+		nextMonth = 1
+		nextYear++
 	}
+	nowMonth := fmt.Sprintf("%d年%d月\n", nextYear, nextMonth)
+	var result []model.YearQuotation
+	cli := db.Get()
+	err := cli.Where("submitTime = ? AND approved = ?", nowMonth, true).
+		Find(&result).Error
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+	// }
+	// else {
+	// 	// 不是公示日
+	// 	return nil, errors.New("不是公示日")
+	// }
 
 }
