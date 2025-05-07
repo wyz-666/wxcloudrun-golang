@@ -134,3 +134,22 @@ func GetCEAMonthScore(c *gin.Context) {
 	response.MakeSuccess(c, http.StatusOK, result)
 	return
 }
+
+func GetCCERMonthScore(c *gin.Context) {
+	log.Println("################## Get CCER Month Score ##################")
+	nowTimeStr := c.Query("nowTime")
+	t, err := time.Parse("2006-01-02 15:04:05", nowTimeStr)
+	if err != nil {
+		c.JSON(400, gin.H{"msg": "nowTime 格式错误", "error": err.Error()})
+		return
+	}
+	result, err := service.GetCCERMonthScoreList(t)
+	if err != nil {
+		log.Printf("Get CCER Month Score error!")
+		response.MakeFail(c, http.StatusBadRequest, "Get CCER Month Score error")
+		return
+	}
+	log.Println("Get CCER Month Score successfully")
+	response.MakeSuccess(c, http.StatusOK, result)
+	return
+}

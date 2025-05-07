@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"time"
 	"wxcloudrun-golang/app/handlers/request"
 	"wxcloudrun-golang/db"
@@ -190,13 +191,13 @@ func getMonthTimeAndID(nowTime time.Time, db *gorm.DB) (string, string, error) {
 	// now := time.Now()
 	// year, month, day := now.Date()
 	year, month, day := nowTime.Date()
+	hour, _, _ := nowTime.Clock()
+	log.Println("test hour:", hour)
 
 	dateStr := nowTime.Format("20060102")
 	// 查询今天已有多少条报价记录
 	var count int64
-	// err := db.Model(&model.MonthQuotation{}).
-	// 	Where("DATE(created_at) = ?", dateStr).
-	// 	Count(&count).Error
+
 	err := db.Model(&model.MonthQuotation{}).Count(&count).Error
 	if err != nil {
 		return "", "", err
@@ -210,7 +211,7 @@ func getMonthTimeAndID(nowTime time.Time, db *gorm.DB) (string, string, error) {
 
 	// 判断是否为28号，或是特殊月的最后一天（28或27）
 	// if day == 28 || (lastDay < 29 && day == lastDay-1) {
-	if day < 27 && day > 21 {
+	if (day < 26 && day > 21) || (day == 26 && hour < 12) {
 		// 下一个月
 		nextMonth := month + 1
 		nextYear := year
@@ -228,6 +229,7 @@ func getYearTimeAndID(nowTime time.Time, db *gorm.DB) (string, string, error) {
 	// now := time.Now()
 	// year, month, day := now.Date()
 	year, month, day := nowTime.Date()
+	hour, _, _ := nowTime.Clock()
 
 	dateStr := nowTime.Format("20060102")
 	// 查询今天已有多少条报价记录
@@ -249,7 +251,7 @@ func getYearTimeAndID(nowTime time.Time, db *gorm.DB) (string, string, error) {
 	// 判断是否为29号，或是特殊月的最后一天（28或27）
 	// if day == 28 || (lastDay < 29 && day == lastDay-1) {
 	// 下一个月
-	if day < 27 && day > 21 {
+	if (day < 26 && day > 21) || (day == 26 && hour < 12) {
 		nextMonth := month + 1
 		nextYear := year
 		if nextMonth > 12 {

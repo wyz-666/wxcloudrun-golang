@@ -127,7 +127,7 @@ func GetCEAMonthScoreList(nowTime time.Time) ([]response.ResUserScore, error) {
 		Find(&quotes).Error; err != nil {
 		return nil, err
 	}
-	priceList, err := getPriceList(cli, monthStr)
+	priceList, err := getCEAPriceList(cli, monthStr)
 	if err != nil {
 		return nil, err
 	}
@@ -200,8 +200,70 @@ func GetCEAMonthScoreList(nowTime time.Time) ([]response.ResUserScore, error) {
 	return result, nil
 }
 
+func GetCCERMonthScoreList(nowTime time.Time) ([]response.ResUserScore, error) {
+	// 1. 查出下月 CCER 的所有报价
+	cli := db.Get()
+	var quotes []model.MonthQuotation
+	// now := time.Now()
+	y, m, _ := nowTime.Date()
+	month := m
+	year := y
+	monthStr := fmt.Sprintf("%d年%d月\n", year, month)
+	if err := cli.
+		Where("applicableTime = ? AND product = ?", monthStr, "CCER").
+		Find(&quotes).Error; err != nil {
+		return nil, err
+	}
+	priceList, err := getCCERPriceList(cli, monthStr)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]response.ResUserScore, 0)
+	for i := range quotes {
+		low, err := strconv.ParseFloat(quotes[i].LowerPrice, 64)
+		if err != nil {
+			return nil, err
+		}
+		high, err := strconv.ParseFloat(quotes[i].HigherPrice, 64)
+		if err != nil {
+			return nil, err
+		}
+		var user model.User
+		if err := cli.
+			Where("uuid = ?", quotes[i].Uuid).
+			First(&user).Error; err != nil {
+			return nil, err
+		}
+		log.Println("user:", user.UserID)
+		mid := math.Round(((low+high)/2)*100) / 100
+		var countScore int
+		var dist float64
+		dist = 0
+		countScore = 0
+		for j := range priceList {
+			closingToday, err := strconv.ParseFloat(priceList[j].ClosingPrice, 64)
+			if err != nil {
+				return nil, err
+			}
+			dist += math.Abs(closingToday - mid)
+		}
+		log.Println("count:", countScore)
+		userScore := response.ResUserScore{
+			Uuid:        user.Uuid,
+			UserID:      user.UserID,
+			CompanyName: user.CompanyName,
+			UserName:    user.UserName,
+			Phone:       user.Phone,
+			Email:       user.Email,
+			Score:       math.Round(dist*100) / 100,
+		}
+		result = append(result, userScore)
+	}
+	return result, nil
+}
+
 // 得到当月价格数据
-func getPriceList(db *gorm.DB, time string) ([]model.CEAMarket, error) {
+func getCEAPriceList(db *gorm.DB, time string) ([]model.CEAMarket, error) {
 	monthTrim := strings.TrimSpace(time) // → "2025年4月"
 
 	// 2. 拆成 年 和 月
@@ -217,6 +279,29 @@ func getPriceList(db *gorm.DB, time string) ([]model.CEAMarket, error) {
 
 	// 4A. 简单 LIKE 查询
 	var markets []model.CEAMarket
+	if err := db.Where("`date` LIKE ?", prefix+"%").
+		Find(&markets).Error; err != nil {
+		return nil, err
+	}
+	return markets, nil
+}
+
+func getCCERPriceList(db *gorm.DB, time string) ([]model.CCERMarket, error) {
+	monthTrim := strings.TrimSpace(time) // → "2025年4月"
+
+	// 2. 拆成 年 和 月
+	parts := strings.SplitN(monthTrim, "年", 2)     // ["2025", "4月"]
+	yearStr := parts[0]                            // "2025"
+	monthPart := strings.TrimSuffix(parts[1], "月") // "4"
+	monInt, err := strconv.Atoi(monthPart)
+	if err != nil {
+		return nil, err
+	}
+	// 3. 构造 “YYYY/MM/” 前缀
+	prefix := fmt.Sprintf("%s/%02d/", yearStr, monInt) // "2025/04/"
+
+	// 4A. 简单 LIKE 查询
+	var markets []model.CCERMarket
 	if err := db.Where("`date` LIKE ?", prefix+"%").
 		Find(&markets).Error; err != nil {
 		return nil, err
