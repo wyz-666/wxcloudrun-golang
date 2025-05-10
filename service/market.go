@@ -154,36 +154,36 @@ func GetCEAMonthScoreList(nowTime time.Time) ([]response.ResUserScore, error) {
 		maxDist = 0
 		countScore = 0
 		for j := range priceList {
-			lowToday, err := strconv.ParseFloat(priceList[j].LowerPrice, 64)
-			if err != nil {
-				return nil, err
-			}
-			if (lowToday > low) && (lowToday < high) {
-				countScore++
-				log.Println("lowToday:", lowToday)
-			}
-			highToday, err := strconv.ParseFloat(priceList[j].HigherPrice, 64)
-			if err != nil {
-				return nil, err
-			}
-			if (highToday > low) && (highToday < high) {
-				countScore++
-				log.Println("highToday:", highToday)
-			}
+			// lowToday, err := strconv.ParseFloat(priceList[j].LowerPrice, 64)
+			// if err != nil {
+			// 	return nil, err
+			// }
+			// if (lowToday > low) && (lowToday < high) {
+			// 	countScore++
+			// 	log.Println("lowToday:", lowToday)
+			// }
+			// highToday, err := strconv.ParseFloat(priceList[j].HigherPrice, 64)
+			// if err != nil {
+			// 	return nil, err
+			// }
+			// if (highToday > low) && (highToday < high) {
+			// 	countScore++
+			// 	log.Println("highToday:", highToday)
+			// }
 			closingToday, err := strconv.ParseFloat(priceList[j].ClosingPrice, 64)
 			if err != nil {
 				return nil, err
 			}
-			if (closingToday > low) && (closingToday < high) {
+			if (closingToday < low) || (closingToday > high) {
 				countScore++
 				log.Println("closingToday:", closingToday)
 			}
-			if math.Abs(lowToday-low) > maxDist {
-				maxDist = math.Abs(lowToday - low)
+			if math.Abs(mid-closingToday) > maxDist {
+				maxDist = math.Abs(mid - closingToday)
 			}
-			if math.Abs(highToday-high) > maxDist {
-				maxDist = math.Abs(highToday - high)
-			}
+			// if math.Abs(highToday-high) > maxDist {
+			// 	maxDist = math.Abs(highToday - high)
+			// }
 		}
 		log.Println("count:", countScore)
 		userScore := response.ResUserScore{
@@ -237,15 +237,21 @@ func GetCCERMonthScoreList(nowTime time.Time) ([]response.ResUserScore, error) {
 		log.Println("user:", user.UserID)
 		mid := math.Round(((low+high)/2)*100) / 100
 		var countScore int
-		var dist float64
-		dist = 0
+		var maxDist float64
+		maxDist = 0
 		countScore = 0
 		for j := range priceList {
 			closingToday, err := strconv.ParseFloat(priceList[j].ClosingPrice, 64)
 			if err != nil {
 				return nil, err
 			}
-			dist += math.Abs(closingToday - mid)
+			if (closingToday < low) || (closingToday > high) {
+				countScore++
+				log.Println("closingToday:", closingToday)
+			}
+			if math.Abs(mid-closingToday) > maxDist {
+				maxDist = math.Abs(mid - closingToday)
+			}
 		}
 		log.Println("count:", countScore)
 		userScore := response.ResUserScore{
@@ -255,7 +261,7 @@ func GetCCERMonthScoreList(nowTime time.Time) ([]response.ResUserScore, error) {
 			UserName:    user.UserName,
 			Phone:       user.Phone,
 			Email:       user.Email,
-			Score:       math.Round(dist*100) / 100,
+			Score:       float64(countScore) + math.Round((maxDist/mid)*100)/100,
 		}
 		result = append(result, userScore)
 	}
